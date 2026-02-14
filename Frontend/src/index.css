@@ -85,3 +85,13 @@ button:focus-visible {
   }
 }
 
+
+.auth-error {
+  background: #ffe6e6;
+  color: #d60000;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
