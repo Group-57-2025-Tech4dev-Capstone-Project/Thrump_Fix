@@ -1,4 +1,4 @@
-
+import "./Inputs.css"
 export default function Input({
   label,
   type = "text",
@@ -22,18 +22,3 @@ export default function Input({
 }
 
 
-// import React from "react";
-
-// const Input = React.forwardRef(
-//   ({ label, error, ...props }, ref) => {
-//     return (
-//       <div>
-//         <label>{label}</label>
-//         <input ref={ref} {...props} />
-//         {error && <p>{error}</p>}
-//       </div>
-//     );
-//   }
-// );
-
-// export default Input;
