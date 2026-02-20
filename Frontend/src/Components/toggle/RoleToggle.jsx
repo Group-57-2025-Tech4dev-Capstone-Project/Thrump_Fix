@@ -1,5 +1,5 @@
 
-
+ import "./RoleToggle.css"
 export default function RoleToggle({ role, setRole }) {
   return (
     <div className="role-toggle">

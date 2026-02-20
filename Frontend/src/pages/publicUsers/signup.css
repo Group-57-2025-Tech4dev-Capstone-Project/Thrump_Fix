@@ -1,0 +1,48 @@
+/* =============================================
+   FILE UPLOAD COMPONENT
+   ============================================= */
+
+.file-upload {
+  margin-bottom: 16px;
+}
+
+.file-upload label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #1e3a5f;
+  margin-bottom: 8px;
+}
+
+.file-upload-box {
+  border: 2px dashed #a8c4e8;
+  border-radius: 14px;
+  background: #f0f6ff;
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.file-upload-box:hover {
+  border-color: #4f7dbd;
+  background: #e6f0fc;
+}
+
+.file-upload-box svg,
+.file-upload-box .upload-icon {
+  color: #4f7dbd;
+  font-size: 28px;
+}
+
+.file-upload-box span {
+  font-size: 13px;
+  color: #4f7dbd;
+  font-weight: 500;
+}
