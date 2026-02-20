@@ -1,7 +1,15 @@
+import Navbar from "../../Components/landing/Navbar";
+import Hero from "../../Components/landing/Hero"
+import Promise from "../../Components/landing/Promise"
+import CTA from "../../Components/landing/CTA"
+
 export default function LandingPage(){
     return(
         <section>
-            <h3>THIS IS THE LANDING PAGE</h3>
+            <Navbar/>
+            <Hero/>
+            <Promise/>
+            <CTA/>
         </section>
     )
 }
