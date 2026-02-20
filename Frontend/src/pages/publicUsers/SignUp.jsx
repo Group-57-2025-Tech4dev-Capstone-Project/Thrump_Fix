@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +34,7 @@ const LCDA_REGIONS = [
 ];
 
 export default function Signup() {
+
   const [role, setRole] = useState("customer");
   const [loading, setLoading] = useState(false);
   const [idFile, setIdFile] = useState(null);
@@ -84,6 +86,7 @@ export default function Signup() {
   return (
     <AuthLayout title="Account Setup">
       <RoleToggle role={role} setRole={setRole} />
+
 
       <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -208,4 +211,5 @@ export default function Signup() {
       </form>
     </AuthLayout>
   );
+
 }
