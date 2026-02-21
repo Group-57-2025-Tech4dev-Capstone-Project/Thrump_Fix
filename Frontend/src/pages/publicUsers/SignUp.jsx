@@ -102,11 +102,8 @@ export default function Signup() {
       console.log("User created:", result);
       localStorage.setItem("user", JSON.stringify(payload));
 
-      if (payload.role === "plumber") {
-        navigate(route.PlumberDashboard);
-      } else {
-        navigate(route.ConsumerDashboard);
-      }
+      navigate(route.Login);
+
     } catch (error) {
       console.error("Signup error:", error);
       dispatch({ type: "SET_ERROR", payload: "Signup failed. Please try again." });
@@ -180,14 +177,14 @@ export default function Signup() {
             defaultValue="Lagos"
             {...register("state", { required: "State is required" })}
           >
-            {STATES.map((s) => (
+            {STATES.map((item) => (
               <option
-                key={s.value}
-                value={s.value}
-                disabled={!s.active}
-                className={!s.active ? "state-coming-soon" : ""}
+                key={item.value}
+                value={item.value}
+                disabled={!item.active}
+                className={!item.active ? "state-coming-soon" : ""}
               >
-                {s.label}
+                {state.label}
               </option>
             ))}
           </select>
@@ -199,8 +196,8 @@ export default function Signup() {
           <label>Local Government Area (LGA)</label>
           <select {...register("lga", { required: "LGA is required" })}>
             <option value="">Select LGA</option>
-            {LAGOS_LGAS.map((l) => (
-              <option key={l} value={l}>{l}</option>
+            {LAGOS_LGAS.map((LGA) => (
+              <option key={LGA} value={LGA}>{LGA}</option>
             ))}
           </select>
           {errors.lga && <p className="errorText">{errors.lga.message}</p>}
