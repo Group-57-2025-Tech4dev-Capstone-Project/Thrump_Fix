@@ -1,6 +1,4 @@
-/* =============================================
-   INPUT COMPONENT
-   ============================================= */
+/* INPUT COMPONENT*/
 
 .input-field {
   margin-bottom: 16px;
@@ -16,6 +14,7 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #1e3a5f;
+  text-align: left;
 }
 
 .input-field input {
@@ -49,11 +48,10 @@
   font-size: 11px;
   color: #ef4444;
   margin: 0;
+  text-align: left;
 }
 
-/* =============================================
-   SELECT DROPDOWNS
-   ============================================= */
+/*    SELECT DROPDOWNS */
 
 .input-field select {
   width: 100%;
@@ -69,6 +67,7 @@
   -webkit-appearance: none;
   box-sizing: border-box;
   transition: border-color 0.2s, background 0.2s;
+  text-align: left;
 }
 
 .input-field select:focus {

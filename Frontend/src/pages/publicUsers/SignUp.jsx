@@ -211,7 +211,7 @@ export default function Signup() {
           <label>LCDA Region</label>
           <select {...register("lcda", { required: "LCDA is required" })}>
             <option value="">Select Region</option>
-            {LCDA_REGIONS.map((r) => (
+            {LCDA_REGIONS.map((region) => (
               <option key={region} value={region}>{region}</option>
             ))}
           </select>
@@ -238,12 +238,10 @@ export default function Signup() {
           </label>
         </div>
 
-        {/* Inline submit error */}
         {submitError && (
           <p className="submit-error">{submitError}</p>
         )}
 
-        {/* Submit */}
         <button type="submit" disabled={loading} className="auth-btn">
           {loading && <span className="btn-spinner" />}
           {loading ? "Creating..." : "Complete Setup"}
