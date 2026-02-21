@@ -1,3 +1,4 @@
+
 import { useReducer } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -62,6 +63,7 @@ export default function Signup() {
   const [state, dispatch] = useReducer(signupReducer, initialState);
   const { role, idFile, agreed, loading, submitError } = state;
 
+
   const navigate = useNavigate();
 
   const {
@@ -119,6 +121,7 @@ export default function Signup() {
         role={role}
         setRole={(r) => dispatch({ type: "SET_ROLE", payload: r })}
       />
+
 
       <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -256,4 +259,5 @@ export default function Signup() {
       </form>
     </AuthLayout>
   );
+
 }
