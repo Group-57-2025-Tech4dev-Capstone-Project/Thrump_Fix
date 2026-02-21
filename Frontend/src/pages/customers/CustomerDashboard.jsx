@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "../../Components/card/Card";
-import Button from "../../Components/button/Button";
-import DashboardLayout from "../../Components/dashboardLayout/DashboardLayout";
+import Button from "../../Components/buttons/Buttons";
+import DashboardLayout from "../../Layouts/DashboardLayout";
 // import AssistantOverlay from "./AssistantOverlay";
 
 // Mock jobs — replace with real API data later
