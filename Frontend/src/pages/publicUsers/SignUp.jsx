@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -9,13 +9,11 @@ import FileUpload from "../../Components/fileUpload/FileUpload.jsx";
 import route from "../../utils/routes";
 import "./signup.css";
 
-const NIGERIAN_STATES = [
-  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa",
-  "Benue", "Borno", "Cross River", "Delta", "Ebonyi", "Edo",
-  "Ekiti", "Enugu", "FCT", "Gombe", "Imo", "Jigawa", "Kaduna",
-  "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa",
-  "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers",
-  "Sokoto", "Taraba", "Yobe", "Zamfara",
+const STATES = [
+  { value: "Lagos", label: "Lagos", active: true },
+  { value: "Abuja", label: "Abuja (Coming Soon)", active: false },
+  { value: "Kano", label: "Kano (Coming Soon)", active: false },
+  { value: "Port Harcourt", label: "Port Harcourt (Coming Soon)", active: false },
 ];
 
 const LAGOS_LGAS = [
@@ -32,11 +30,37 @@ const LCDA_REGIONS = [
   "Oriade", "Orile-Agege",
 ];
 
+// ── Reducer ──────────────────────────────────────
+const initialState = {
+  role: "customer",
+  idFile: null,
+  agreed: false,
+  loading: false,
+  submitError: "",
+};
+
+function signupReducer(state, action) {
+  switch (action.type) {
+    case "SET_ROLE":
+      return { ...state, role: action.payload };
+    case "SET_FILE":
+      return { ...state, idFile: action.payload };
+    case "TOGGLE_AGREED":
+      return { ...state, agreed: !state.agreed };
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
+    case "SET_ERROR":
+      return { ...state, submitError: action.payload };
+    case "CLEAR_ERROR":
+      return { ...state, submitError: "" };
+    default:
+      return state;
+  }
+}
+
 export default function Signup() {
-  const [role, setRole] = useState("customer");
-  const [loading, setLoading] = useState(false);
-  const [idFile, setIdFile] = useState(null);
-  const [agreed, setAgreed] = useState(false);
+  const [state, dispatch] = useReducer(signupReducer, initialState);
+  const { role, idFile, agreed, loading, submitError } = state;
 
   const navigate = useNavigate();
 
@@ -47,12 +71,20 @@ export default function Signup() {
   } = useForm({ shouldUnregister: true });
 
   const onSubmit = async (data) => {
+    dispatch({ type: "CLEAR_ERROR" });
+
     if (!agreed) {
-      alert("Please agree to the Terms & Conditions");
+      dispatch({ type: "SET_ERROR", payload: "Please agree to the Terms & Conditions to continue." });
       return;
     }
 
-    setLoading(true);
+    if (!idFile) {
+      dispatch({ type: "SET_ERROR", payload: "Please upload your National ID / LASRRA photo." });
+      return;
+    }
+
+    dispatch({ type: "SET_LOADING", payload: true });
+
     try {
       const payload = { ...data, role, idFile: idFile?.name };
 
@@ -75,15 +107,18 @@ export default function Signup() {
       }
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Signup failed. Try again.");
+      dispatch({ type: "SET_ERROR", payload: "Signup failed. Please try again." });
     } finally {
-      setLoading(false);
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
   return (
     <AuthLayout title="Account Setup">
-      <RoleToggle role={role} setRole={setRole} />
+      <RoleToggle
+        role={role}
+        setRole={(r) => dispatch({ type: "SET_ROLE", payload: r })}
+      />
 
       <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -109,7 +144,7 @@ export default function Signup() {
 
         <Input
           label="Phone Number"
-          placeholder="080-081-082-090..."
+          placeholder="0806-816-0826..."
           {...register("phoneNo", {
             required: "Phone number is required",
             pattern: {
@@ -123,7 +158,7 @@ export default function Signup() {
         <Input
           label="Password"
           type="password"
-          placeholder="Min 8 characters"
+          placeholder="Min 6 characters"
           {...register("password", {
             required: "Password required",
             minLength: { value: 6, message: "Minimum 6 characters" },
@@ -135,13 +170,22 @@ export default function Signup() {
           error={errors.password?.message}
         />
 
-        {/* State */}
+        {/* State — Lagos active, others disabled */}
         <div className="input-field">
           <label>State</label>
-          <select {...register("state", { required: "State is required" })}>
-            <option value="">Select State</option>
-            {NIGERIAN_STATES.map((s) => (
-              <option key={s} value={s}>{s}</option>
+          <select
+            defaultValue="Lagos"
+            {...register("state", { required: "State is required" })}
+          >
+            {STATES.map((s) => (
+              <option
+                key={s.value}
+                value={s.value}
+                disabled={!s.active}
+                className={!s.active ? "state-coming-soon" : ""}
+              >
+                {s.label}
+              </option>
             ))}
           </select>
           {errors.state && <p className="errorText">{errors.state.message}</p>}
@@ -165,7 +209,7 @@ export default function Signup() {
           <select {...register("lcda", { required: "LCDA is required" })}>
             <option value="">Select Region</option>
             {LCDA_REGIONS.map((r) => (
-              <option key={r} value={r}>{r}</option>
+              <option key={region} value={region}>{region}</option>
             ))}
           </select>
           {errors.lcda && <p className="errorText">{errors.lcda.message}</p>}
@@ -174,16 +218,16 @@ export default function Signup() {
         {/* File Upload */}
         <FileUpload
           label="National ID / LASRRA Photo"
-          onChange={(e) => setIdFile(e.target.files[0])}
+          onFileChange={(file) => dispatch({ type: "SET_FILE", payload: file })}
         />
 
-        {/* Terms & Conditions */}
+        {/* Terms */}
         <div className="terms-row">
           <input
             type="checkbox"
             id="terms"
             checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
+            onChange={() => dispatch({ type: "TOGGLE_AGREED" })}
           />
           <label htmlFor="terms">
             I agree to the{" "}
@@ -191,13 +235,17 @@ export default function Signup() {
           </label>
         </div>
 
+        {/* Inline submit error */}
+        {submitError && (
+          <p className="submit-error">{submitError}</p>
+        )}
+
         {/* Submit */}
         <button type="submit" disabled={loading} className="auth-btn">
           {loading && <span className="btn-spinner" />}
           {loading ? "Creating..." : "Complete Setup"}
         </button>
 
-        {/* Login link */}
         <p className="auth-footer">
           Already have an account?{" "}
           <span className="auth-link" onClick={() => navigate(route.Login)}>
