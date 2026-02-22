@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import DashboardLayout from "../../Layouts/DashboardLayout";
 // import AssistantOverlay from "./AssistantOverlay";
@@ -147,3 +148,12 @@ export default function ConsumerDashboard() {
     </>
   );
 }
+=======
+export default function CustomerDashboard(){
+    return(
+        <section>
+            this is dashboard
+        </section>
+    )
+}
+>>>>>>> feature/dashboard-layout
