@@ -184,7 +184,7 @@ export default function Signup() {
                 disabled={!item.active}
                 className={!item.active ? "state-coming-soon" : ""}
               >
-                {state.label}
+                {item.label}
               </option>
             ))}
           </select>

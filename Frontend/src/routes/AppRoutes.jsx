@@ -7,8 +7,7 @@ import Signup from "../pages/publicUsers/SignUp";
 
 // Customer Pages
 import CustomerDashboard from "../pages/customers/CustomerDashboard/";
-import PostJobs from "../pages/customers/PostJobs"
-import PlumberList from "../pages/customers/Plumber"
+
 
 // Plumber Pages
 import PlumberDashboard from "../pages/plumber/Dashboard";
@@ -38,26 +37,6 @@ export default function AppRoutes(){
                     <ProtectedRoute>
                         <CustomerDashboard />
                     </ProtectedRoute>
-                }>
-            </Route>
-
-            <Route
-                path={route.PostJob}
-                element={
-                    <ProtectedRoute>
-                        <PostJobs/>
-                    </ProtectedRoute>
-
-                }>
-            </Route>
-
-            <Route
-                path={route.PlumberList}
-                element={
-                    <ProtectedRoute>
-                        <PlumberList/>
-                    </ProtectedRoute>
-
                 }>
             </Route>
 
