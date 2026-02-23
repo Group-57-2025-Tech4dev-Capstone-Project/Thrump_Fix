@@ -25,7 +25,7 @@ export default function LandingNavbar() {
                 </Link>
 
                 <Link to="/login">
-                <Button size="md">
+                <Button variant="outline" size="md">
                     Login
                 </Button>
                 </Link>
