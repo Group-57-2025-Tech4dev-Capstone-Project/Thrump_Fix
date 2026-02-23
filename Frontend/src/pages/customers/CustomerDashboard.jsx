@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import DashboardLayout from "../../Layouts/DashboardLayout";
-// import AssistantOverlay from "./AssistantOverlay";
+import AssistantOverlay from "./AssistantOverlay";
 
 // Replace with real API data later
 // Set to [] to see empty state (image 1)
@@ -123,7 +123,7 @@ export default function ConsumerDashboard() {
                     </div>
                   </div>
 
-                  {/* Phone button — only for cancelled/rejected */}
+                  {/* Phone button  */}
                   {(job.status === "cancelled" || job.status === "rejected") && (
                     <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex-shrink-0">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -142,9 +142,9 @@ export default function ConsumerDashboard() {
       </DashboardLayout>
 
       {/* Overlay*/}
-      {/* {showOverlay && (
+      {showOverlay && (
         <AssistantOverlay onClose={() => setShowOverlay(false)} />
-      )} */}
+      )}
     </>
   );
 }
