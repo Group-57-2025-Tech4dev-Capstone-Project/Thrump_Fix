@@ -1,7 +1,9 @@
+import DashboardLayout from "../../Layouts/DashboardLayout";
+
 export default function PlumberDashboard(){
     return(
-        <section>
-            dashboerd section
-        </section>
+        <DashboardLayout>
+           
+        </DashboardLayout>
     )
 }

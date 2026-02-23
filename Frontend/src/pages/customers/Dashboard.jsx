@@ -1,7 +1,9 @@
+import DashboardLayout from "../../Layouts/DashboardLayout";
+
 export default function CustomerDashboard(){
     return(
         <section>
-            this is dashboard
+           
         </section>
     )
 }
