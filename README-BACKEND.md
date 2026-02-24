@@ -57,7 +57,7 @@ ModelMapper
 Validation API
 Maven
 Testing
-Postman
+Postman 
 
 
 ⚙️ Requirements & Prerequisites
@@ -152,7 +152,7 @@ src/main/java/com.WTFCapestone.Capestone
 ├── dto             → Request & response models
 └── security        → JWT & authentication
 └── exception       → Custom exception handling
-└── util            → JWT & authentication
+└── util            → Utilities
 
 👨‍💻 Authors
 
