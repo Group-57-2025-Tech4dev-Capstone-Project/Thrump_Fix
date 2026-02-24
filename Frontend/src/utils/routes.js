@@ -2,7 +2,7 @@ const route = {
     LandingPage: "/home",
     Signup: "/signup",
     Login: "/login",
-    ConsumerDashboard: "/consumer/Dashboard",
+    ConsumerDashboard: "/consumer/dashboard",
     PlumberDashboard: "/plumber/dashboard",
     PostJob: "/consumer/postJob",
     // PlumberList: "/consumer/plumberList",

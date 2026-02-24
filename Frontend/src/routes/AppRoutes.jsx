@@ -6,7 +6,7 @@ import Login from "../pages/publicUsers/Login";
 import Signup from "../pages/publicUsers/SignUp";
 
 // Customer Pages
-import CustomerDashboard from "../pages/customers/CustomerDashboard/";
+import CustomerDashboard from "../pages/customers/CustomerDashboard";
 
 
 // Plumber Pages
