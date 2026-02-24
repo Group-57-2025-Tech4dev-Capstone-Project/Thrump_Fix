@@ -60,7 +60,7 @@ export default function Hero() {
            <Card
             hover
             className="flex items-center justify-between gap-4 cursor-pointer"
-            onClick={() => navigate(route.Login)}
+            onClick={() => navigate(route.Signup)}
           >
             <div className="flex items-center gap-4">
 
