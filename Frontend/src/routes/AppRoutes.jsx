@@ -10,7 +10,7 @@ import CustomerDashboard from "../pages/customers/CustomerDashboard/";
 
 
 // Plumber Pages
-import PlumberDashboard from "../pages/plumber/Dashboard";
+import PlumberDashboard from "../pages/plumber/PlumberDashboard";
 import AvailableJob from "../pages/plumber/AvailableJobs"
 import ActiveJobs from "../pages/plumber/Active"
 
