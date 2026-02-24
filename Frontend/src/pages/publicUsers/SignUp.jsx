@@ -1,4 +1,3 @@
-
 import { useReducer } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +30,6 @@ const LCDA_REGIONS = [
   "Oriade", "Orile-Agege",
 ];
 
-// ── Reducer ──────────────────────────────────────
 const initialState = {
   role: "customer",
   idFile: null,
@@ -63,14 +61,16 @@ export default function Signup() {
   const [state, dispatch] = useReducer(signupReducer, initialState);
   const { role, idFile, agreed, loading, submitError } = state;
 
-
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm({ shouldUnregister: true });
+    formState: { errors, isValid },
+  } = useForm({ shouldUnregister: true, mode: "onChange" });
+
+  // Ready only when all fields valid + checkbox ticked + file uploaded
+  const isReady = isValid && agreed && !!idFile;
 
   const onSubmit = async (data) => {
     dispatch({ type: "CLEAR_ERROR" });
@@ -103,7 +103,6 @@ export default function Signup() {
       localStorage.setItem("user", JSON.stringify(payload));
 
       navigate(route.Login);
-
     } catch (error) {
       console.error("Signup error:", error);
       dispatch({ type: "SET_ERROR", payload: "Signup failed. Please try again." });
@@ -118,7 +117,6 @@ export default function Signup() {
         role={role}
         setRole={(r) => dispatch({ type: "SET_ROLE", payload: r })}
       />
-
 
       <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -170,13 +168,9 @@ export default function Signup() {
           error={errors.password?.message}
         />
 
-        {/* State — Lagos active, others disabled */}
         <div className="input-field">
           <label>State</label>
-          <select
-            defaultValue="Lagos"
-            {...register("state", { required: "State is required" })}
-          >
+          <select defaultValue="Lagos" {...register("state", { required: "State is required" })}>
             {STATES.map((item) => (
               <option
                 key={item.value}
@@ -191,7 +185,6 @@ export default function Signup() {
           {errors.state && <p className="errorText">{errors.state.message}</p>}
         </div>
 
-        {/* LGA */}
         <div className="input-field">
           <label>Local Government Area (LGA)</label>
           <select {...register("lga", { required: "LGA is required" })}>
@@ -203,7 +196,6 @@ export default function Signup() {
           {errors.lga && <p className="errorText">{errors.lga.message}</p>}
         </div>
 
-        {/* LCDA */}
         <div className="input-field">
           <label>LCDA Region</label>
           <select {...register("lcda", { required: "LCDA is required" })}>
@@ -215,13 +207,11 @@ export default function Signup() {
           {errors.lcda && <p className="errorText">{errors.lcda.message}</p>}
         </div>
 
-        {/* File Upload */}
         <FileUpload
           label="National ID / LASRRA Photo"
           onFileChange={(file) => dispatch({ type: "SET_FILE", payload: file })}
         />
 
-        {/* Terms */}
         <div className="terms-row">
           <input
             type="checkbox"
@@ -235,11 +225,13 @@ export default function Signup() {
           </label>
         </div>
 
-        {submitError && (
-          <p className="submit-error">{submitError}</p>
-        )}
+        {submitError && <p className="submit-error">{submitError}</p>}
 
-        <button type="submit" disabled={loading} className="auth-btn">
+        <button
+          type="submit"
+          disabled={loading || !isReady}
+          className={`auth-btn ${isReady ? "auth-btn--ready" : "auth-btn--dim"}`}
+        >
           {loading && <span className="btn-spinner" />}
           {loading ? "Creating..." : "Complete Setup"}
         </button>
@@ -254,5 +246,4 @@ export default function Signup() {
       </form>
     </AuthLayout>
   );
-
 }

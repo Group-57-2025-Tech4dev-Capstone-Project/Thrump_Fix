@@ -1,14 +1,17 @@
 import Container from "../landing/Container";
 import { Card } from "../card/Card";
+import { useNavigate } from "react-router-dom";
+import route from "../../utils/routes";
 
 export default function Hero() {
+  const navigate = useNavigate();
   return (
     <section className="bg-gray-50 py-24">
 
       <Container>
         <div className="text-center">
-          <span className="bg-blue-100 text-blue-600 text-xs font-semibold px-4 py-1 rounded-full">
-            LAGOS'S #1 TRUSTED NETWORK
+          <span className="bg-blue-100 text-blue-600 text-base font-semibold px-4 py-1 rounded-full">
+            #1 TRUSTED NETWORK
           </span>
         </div>
 
@@ -44,7 +47,7 @@ export default function Hero() {
                   I need a Plumber
                 </h3>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-base text-gray-500">
                   Connect with verified pros
                 </p>
               </div>
@@ -57,7 +60,7 @@ export default function Hero() {
            <Card
             hover
             className="flex items-center justify-between gap-4 cursor-pointer"
-            onClick={() => navigate(route.Signup)}
+            onClick={() => navigate(route.Login)}
           >
             <div className="flex items-center gap-4">
 
@@ -70,7 +73,7 @@ export default function Hero() {
                   I am a Plumber
                 </h3>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-base text-gray-500">
                   Get verified leads today
                 </p>
               </div>

@@ -1,13 +1,13 @@
 const route = {
-    LandingPage: "/Home",
-    Signup: "/Signup",
-    Login: "/Login",
-    ConsumerDashboard: "/Consumer/Dashboard",
-    PlumberDashboard: "/Plumber/Dashboard",
-    PostJob: "/Consumer/PostJob",
-    PlumberList: "/Consumer/PlumberList",
-    AvailableJob: "/Plumber/AvailableJob",
-    ActiveJob: "/Plumber/ActiveJob",
+    LandingPage: "/home",
+    Signup: "/signup",
+    Login: "/login",
+    ConsumerDashboard: "/consumer/Dashboard",
+    PlumberDashboard: "/plumber/dashboard",
+    PostJob: "/consumer/postJob",
+    // PlumberList: "/consumer/plumberList",
+    // AvailableJob: "/Plumber/AvailableJob",
+    // ActiveJob: "/Plumber/ActiveJob",
 };
 
 export default route;

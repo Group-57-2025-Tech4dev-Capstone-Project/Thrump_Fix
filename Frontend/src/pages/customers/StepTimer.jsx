@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const TIMER_SECONDS = 60;
+const TIMER_SECONDS = 30;
 
 export default function StepTimer({ onMatch, onNoMatch, onCancel }) {
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -11,13 +11,13 @@ export default function StepTimer({ onMatch, onNoMatch, onCancel }) {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
-          // Simulate outcome — swap onMatch/onNoMatch to test both
-          onMatch();
+          onNoMatch(); // ✅ ONLY timeout triggers no match
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+
     return () => clearInterval(timerRef.current);
   }, []);
 
@@ -39,19 +39,24 @@ export default function StepTimer({ onMatch, onNoMatch, onCancel }) {
   return (
     <div className="px-5 py-10 flex flex-col items-center gap-6">
 
-      {/* Circular timer */}
       <div className="relative w-36 h-36 flex items-center justify-center">
         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r={radius} fill="none" stroke="#e5e7eb" strokeWidth="6" />
           <circle
-            cx="60" cy="60" r={radius} fill="none"
-            stroke="#2563eb" strokeWidth="6"
+            cx="60"
+            cy="60"
+            r={radius}
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth="6"
             strokeDasharray={circumference}
             strokeDashoffset={circumference * (1 - progress)}
             strokeLinecap="round"
           />
         </svg>
-        <span className="text-3xl font-black text-orange-500">{formatTime(timeLeft)}</span>
+        <span className="text-3xl font-black text-orange-500">
+          {formatTime(timeLeft)}
+        </span>
       </div>
 
       <h3 className="text-base font-black uppercase tracking-widest text-gray-900 text-center">

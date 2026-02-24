@@ -40,7 +40,7 @@ export default function Promise() {
 
         {/* Label */}
         <div className="text-center mb-3">
-          <p className="text-xs font-semibold tracking-widest text-orange-500 uppercase">
+          <p className="text-base font-semibold tracking-widest text-orange-500 uppercase">
             Professional Excellence
           </p>
         </div>

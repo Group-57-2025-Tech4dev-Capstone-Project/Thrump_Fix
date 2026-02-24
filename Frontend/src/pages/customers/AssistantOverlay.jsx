@@ -1,5 +1,6 @@
 import { useState } from "react";
 import StepLGA from "./StepLGA";
+import StepLCDA from "./StepLCDA";
 import StepForm from "./StepForm";
 import StepTimer from "./StepTimer";
 import StepMatch from "./StepMatch";
@@ -8,10 +9,21 @@ import StepNoMatch from "./StepNoMatch";
 export default function AssistantOverlay({ onClose }) {
   const [step, setStep] = useState("lga");
   const [selectedLGA, setSelectedLGA] = useState(null);
+  const [selectedLCDA, setSelectedLCDA] = useState(null);
 
   function handleLGASelect(lga) {
+    setSelectedLGA(null);
+    setSelectedLCDA(null);
     setSelectedLGA(lga);
-    setStep("form");
+    setStep("lcda");
+
+    // setSelectedLGA(lga);
+    // setStep("form");
+  }
+
+  function handleLCDASelect(lcda) {
+  setSelectedLCDA(lcda);
+  setStep("form"); 
   }
 
   function handleFormSubmit() {
@@ -73,8 +85,12 @@ export default function AssistantOverlay({ onClose }) {
           <StepLGA onSelect={handleLGASelect} />
         )}
 
+        {step === "lcda" && (
+          <StepLCDA lga={selectedLGA} onSelect={handleLCDASelect} />
+        )}
+
         {step === "form" && (
-          <StepForm selectedLGA={selectedLGA} onSubmit={handleFormSubmit} />
+          <StepForm selectedLGA={selectedLGA} selectedLCDA={selectedLCDA} onSubmit={handleFormSubmit} />
         )}
 
         {step === "timer" && (

@@ -20,14 +20,12 @@
 }
 
 .terms-link {
-  color: #3b82f6;
+  color: #1d4ed8;
   font-weight: 700;
   cursor: pointer;
 }
 
-/* =============================================
-   SUBMIT ERROR (replaces alert)
-   ============================================= */
+/*    SUBMIT ERROR (replaces alert) */
 
 .submit-error {
   background: #fff0f0;
@@ -41,11 +39,31 @@
   text-align: center;
 }
 
-/* =============================================
-   COMING SOON STATE OPTIONS
-   ============================================= */
+/*   COMING SOON STATE OPTIONS */
 
 .state-coming-soon {
   color: #9ca3af;
   font-style: italic;
+}
+
+.auth-btn--dim {
+  background: #a8c4e8;
+  cursor: not-allowed;
+}
+
+/* .auth-btn--dim:hover {
+  background: #a8c4e8; 
+} */
+
+.auth-btn--ready {
+  background: #1d4ed8; 
+  cursor: pointer;
+}
+
+/* .auth-btn--ready:hover {
+  background: #1e40af;
+} */
+
+.auth-link{
+  color: #1d4ed8;
 }

@@ -11,7 +11,7 @@ export default function LandingNavbar() {
 
          
           <h1 className="text-xl font-bold text-blue-600">
-             PlumbConnect
+             Thrump Fix
           </h1>
 
           {/* Buttons */}

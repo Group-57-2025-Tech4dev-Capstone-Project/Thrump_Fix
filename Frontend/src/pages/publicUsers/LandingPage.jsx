@@ -9,8 +9,8 @@ export default function LandingPage(){
         <section>
             <Navbar/>
             <Hero/>
-            <Testimonials/>
             <Promise/>
+            <Testimonials/>
             <CTA/>
         </section>
     )
