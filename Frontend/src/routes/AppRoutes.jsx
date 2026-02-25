@@ -4,6 +4,7 @@ import route from "../utils/routes"
 import LandingPage from "../pages/publicUsers/LandingPage";
 import Login from "../pages/publicUsers/Login";
 import Signup from "../pages/publicUsers/SignUp";
+import PricingPage from "../pages/publicUsers/PricingPage";
 
 // Customer Pages
 import CustomerDashboard from "../pages/customers/CustomerDashboard";
@@ -29,6 +30,7 @@ export default function AppRoutes(){
 
             <Route path={route.Login} element={<Login/>}></Route>
             <Route path={route.Signup} element={<Signup/>}></Route>
+            <Route path={route.Pricing} element={<PricingPage/>}></Route>
 
             {/* Consumer */}
             <Route

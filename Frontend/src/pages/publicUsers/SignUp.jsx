@@ -102,7 +102,7 @@ export default function Signup() {
       console.log("User created:", result);
       localStorage.setItem("user", JSON.stringify(payload));
 
-      navigate(route.Login);
+      navigate(route.Pricing);
     } catch (error) {
       console.error("Signup error:", error);
       dispatch({ type: "SET_ERROR", payload: "Signup failed. Please try again." });
