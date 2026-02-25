@@ -1,5 +1,6 @@
 
 import "./AuthLayout.css"
+import Logo from "../../assets/Logo.svg?react"
 
 export default function AuthLayout({title, children }) {
   return (
@@ -7,7 +8,8 @@ export default function AuthLayout({title, children }) {
 
       {/* Logo at the top */}
       <div className="auth-logo">
-        <img src="/logo.png" alt="PlumbConnect" />
+        <Logo className="auth-logo-icon" />
+        <span className="auth-logo-text">Thrump Fix</span>
       </div>
 
       {/* White card */}

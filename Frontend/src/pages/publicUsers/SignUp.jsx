@@ -1,41 +1,29 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import AuthLayout from "../../Components/authLayout/AuthLayout.jsx";
 import RoleToggle from "../../Components/toggle/RoleToggle";
 import Input from "../../Components/inputs/Inputs.jsx";
 import FileUpload from "../../Components/fileUpload/FileUpload.jsx";
 import route from "../../utils/routes";
+import api from "../../utils/api";
 import "./signup.css";
 
-const STATES = [
-  { value: "Lagos", label: "Lagos", active: true },
-  { value: "Abuja", label: "Abuja (Coming Soon)", active: false },
-  { value: "Kano", label: "Kano (Coming Soon)", active: false },
-  { value: "Port Harcourt", label: "Port Harcourt (Coming Soon)", active: false },
-];
-
-const LAGOS_LGAS = [
-  "Agege", "Ajeromi-Ifelodun", "Alimosho", "Amuwo-Odofin", "Apapa",
-  "Badagry", "Epe", "Eti-Osa", "Ibeju-Lekki", "Ifako-Ijaiye",
-  "Ikeja", "Ikorodu", "Kosofe", "Lagos Island", "Lagos Mainland",
-  "Mushin", "Ojo", "Oshodi-Isolo", "Shomolu", "Surulere",
-];
-
-const LCDA_REGIONS = [
-  "Agboyi-Ketu", "Ayobo-Ipaja", "Bariga", "Coker-Aguda", "Ejigbo",
-  "Ikosi-Ejirin", "Ikosi-Isheri", "Imota", "Isolo", "Itire-Ikate",
-  "Lagos Island East", "Lekki", "Ojodu", "Ojokoro", "Onigbongbo",
-  "Oriade", "Orile-Agege",
-];
-
 const initialState = {
-  role: "customer",
+  role: "CUSTOMER",
   idFile: null,
   agreed: false,
   loading: false,
   submitError: "",
+
+  // Location
+  states: [],
+  lgas: [],
+  subRegions: [],
+  selectedStateId: "",
+  selectedLgaId: "",
+  locationLoading: false,
 };
 
 function signupReducer(state, action) {
@@ -52,6 +40,18 @@ function signupReducer(state, action) {
       return { ...state, submitError: action.payload };
     case "CLEAR_ERROR":
       return { ...state, submitError: "" };
+    case "SET_STATES":
+      return { ...state, states: action.payload };
+    case "SET_LGAS":
+      return { ...state, lgas: action.payload, subRegions: [], selectedLgaId: "" };
+    case "SET_SUBREGIONS":
+      return { ...state, subRegions: action.payload };
+    case "SET_SELECTED_STATE":
+      return { ...state, selectedStateId: action.payload, lgas: [], subRegions: [], selectedLgaId: "" };
+    case "SET_SELECTED_LGA":
+      return { ...state, selectedLgaId: action.payload, subRegions: [] };
+    case "SET_LOCATION_LOADING":
+      return { ...state, locationLoading: action.payload };
     default:
       return state;
   }
@@ -59,7 +59,11 @@ function signupReducer(state, action) {
 
 export default function Signup() {
   const [state, dispatch] = useReducer(signupReducer, initialState);
-  const { role, idFile, agreed, loading, submitError } = state;
+  const {
+    role, idFile, agreed, loading, submitError,
+    states, lgas, subRegions,
+    selectedStateId, selectedLgaId, locationLoading,
+  } = state;
 
   const navigate = useNavigate();
 
@@ -69,8 +73,54 @@ export default function Signup() {
     formState: { errors, isValid },
   } = useForm({ shouldUnregister: true, mode: "onChange" });
 
-  // Ready only when all fields valid + checkbox ticked + file uploaded
   const isReady = isValid && agreed && !!idFile;
+
+  // Fetch states on mount
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await api.get("/states");
+        dispatch({ type: "SET_STATES", payload: res.data });
+      } catch (err) {
+        console.error("Failed to fetch states:", err);
+      }
+    };
+    fetchStates();
+  }, []);
+
+  // Fetch LGAs when state is selected
+  useEffect(() => {
+    if (!selectedStateId) return;
+    const fetchLgas = async () => {
+      dispatch({ type: "SET_LOCATION_LOADING", payload: true });
+      try {
+        const res = await api.get(`/lgas/state/${selectedStateId}`);
+        dispatch({ type: "SET_LGAS", payload: res.data });
+      } catch (err) {
+        console.error("Failed to fetch LGAs:", err);
+      } finally {
+        dispatch({ type: "SET_LOCATION_LOADING", payload: false });
+      }
+    };
+    fetchLgas();
+  }, [selectedStateId]);
+
+  // Fetch SubRegions when LGA is selected
+  useEffect(() => {
+    if (!selectedLgaId) return;
+    const fetchSubRegions = async () => {
+      dispatch({ type: "SET_LOCATION_LOADING", payload: true });
+      try {
+        const res = await api.get(`/subregions/lga/${selectedLgaId}`);
+        dispatch({ type: "SET_SUBREGIONS", payload: res.data });
+      } catch (err) {
+        console.error("Failed to fetch sub regions:", err);
+      } finally {
+        dispatch({ type: "SET_LOCATION_LOADING", payload: false });
+      }
+    };
+    fetchSubRegions();
+  }, [selectedLgaId]);
 
   const onSubmit = async (data) => {
     dispatch({ type: "CLEAR_ERROR" });
@@ -79,7 +129,6 @@ export default function Signup() {
       dispatch({ type: "SET_ERROR", payload: "Please agree to the Terms & Conditions to continue." });
       return;
     }
-
     if (!idFile) {
       dispatch({ type: "SET_ERROR", payload: "Please upload your National ID / LASRRA photo." });
       return;
@@ -88,24 +137,33 @@ export default function Signup() {
     dispatch({ type: "SET_LOADING", payload: true });
 
     try {
-      const payload = { ...data, role, idFile: idFile?.name };
+      const formData = new FormData();
+      formData.append("image", idFile);                          // ← file object
+      formData.append("fullName", data.fullName);
+      formData.append("email", data.email);
+      formData.append("phoneNumber", data.phoneNumber);          // ← phoneNumber not phoneNo
+      formData.append("password", data.password);
+      formData.append("role", role);                             // ← CUSTOMER or PLUMBER
+      formData.append("stateId", data.stateId);                  // ← ID from dropdown
+      formData.append("localGovernanceAreaId", data.lgaId);      // ← ID from dropdown
+      formData.append("subRegionId", data.subRegionId);          // ← ID from dropdown
+      formData.append("acceptedPrivacyPolicy", true);            // ← required by backend
 
-      const res = await fetch("https://jsonplaceholder.typicode.com/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      const res = await api.post("/auth/register/with-image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (!res.ok) throw new Error("Failed to signup");
-
-      const result = await res.json();
-      console.log("User created:", result);
-      localStorage.setItem("user", JSON.stringify(payload));
-
+      console.log("Registered:", res.data);
       navigate(route.Pricing);
+
     } catch (error) {
       console.error("Signup error:", error);
-      dispatch({ type: "SET_ERROR", payload: "Signup failed. Please try again." });
+      // Show the backend error message if available
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Signup failed. Please try again.";
+      dispatch({ type: "SET_ERROR", payload: message });
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -142,15 +200,15 @@ export default function Signup() {
 
         <Input
           label="Phone Number"
-          placeholder="0806-816-0826..."
-          {...register("phoneNo", {
+          placeholder="08012345678"
+          {...register("phoneNumber", {             // ← updated to match API
             required: "Phone number is required",
             pattern: {
               value: /^(\+234|0)[789][01]\d{8}$/,
               message: "Must be a valid Nigerian phone number",
             },
           })}
-          error={errors.phoneNo?.message}
+          error={errors.phoneNumber?.message}
         />
 
         <Input
@@ -168,43 +226,66 @@ export default function Signup() {
           error={errors.password?.message}
         />
 
+        {/* State — dynamic from API, value is ID */}
         <div className="input-field">
           <label>State</label>
-          <select defaultValue="Lagos" {...register("state", { required: "State is required" })}>
-            {STATES.map((item) => (
-              <option
-                key={item.value}
-                value={item.value}
-                disabled={!item.active}
-                className={!item.active ? "state-coming-soon" : ""}
-              >
-                {item.label}
-              </option>
+          <select
+            {...register("stateId", { required: "State is required" })}
+            onChange={(e) => {
+              dispatch({ type: "SET_SELECTED_STATE", payload: e.target.value });
+            }}
+          >
+            <option value="">Select State</option>
+            {states.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-          {errors.state && <p className="errorText">{errors.state.message}</p>}
+          {errors.stateId && <p className="errorText">{errors.stateId.message}</p>}
         </div>
 
+        {/* LGA — loads after state is picked */}
         <div className="input-field">
           <label>Local Government Area (LGA)</label>
-          <select {...register("lga", { required: "LGA is required" })}>
-            <option value="">Select LGA</option>
-            {LAGOS_LGAS.map((LGA) => (
-              <option key={LGA} value={LGA}>{LGA}</option>
+          <select
+            {...register("lgaId", { required: "LGA is required" })}
+            disabled={!selectedStateId || locationLoading}
+            onChange={(e) => {
+              dispatch({ type: "SET_SELECTED_LGA", payload: e.target.value });
+            }}
+          >
+            <option value="">
+              {!selectedStateId
+                ? "Select a state first"
+                : locationLoading
+                ? "Loading..."
+                : "Select LGA"}
+            </option>
+            {lgas.map((l) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
             ))}
           </select>
-          {errors.lga && <p className="errorText">{errors.lga.message}</p>}
+          {errors.lgaId && <p className="errorText">{errors.lgaId.message}</p>}
         </div>
 
+        {/* SubRegion — loads after LGA is picked */}
         <div className="input-field">
-          <label>LCDA Region</label>
-          <select {...register("lcda", { required: "LCDA is required" })}>
-            <option value="">Select Region</option>
-            {LCDA_REGIONS.map((region) => (
-              <option key={region} value={region}>{region}</option>
+          <label>LCDA / Sub Region</label>
+          <select
+            {...register("subRegionId", { required: "Sub Region is required" })}
+            disabled={!selectedLgaId || locationLoading}
+          >
+            <option value="">
+              {!selectedLgaId
+                ? "Select an LGA first"
+                : locationLoading
+                ? "Loading..."
+                : "Select Sub Region"}
+            </option>
+            {subRegions.map((r) => (
+              <option key={r.id} value={r.id}>{r.name}</option>
             ))}
           </select>
-          {errors.lcda && <p className="errorText">{errors.lcda.message}</p>}
+          {errors.subRegionId && <p className="errorText">{errors.subRegionId.message}</p>}
         </div>
 
         <FileUpload
@@ -221,7 +302,15 @@ export default function Signup() {
           />
           <label htmlFor="terms">
             I agree to the{" "}
-            <span className="terms-link">TERMS & CONDITIONS</span>
+            <Link
+              to={route.Terms}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="terms-link"
+              onClick={(e) => e.stopPropagation()}
+            >
+              TERMS & CONDITIONS
+            </Link>
           </label>
         </div>
 
@@ -233,7 +322,7 @@ export default function Signup() {
           className={`auth-btn ${isReady ? "auth-btn--ready" : "auth-btn--dim"}`}
         >
           {loading && <span className="btn-spinner" />}
-          {loading ? "Creating..." : "Complete Setup"}
+          {loading ? "Creating account..." : "Complete Setup"}
         </button>
 
         <p className="auth-footer">

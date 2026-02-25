@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../Components/authLayout/AuthLayout";
 import Input from "../../Components/inputs/Inputs";
 import route from "../../utils/routes";
+import api from "../../utils/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,27 +23,28 @@ export default function Login() {
     setAuthError("");
 
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const res = await api.post("/auth/login", {
+        email: data.email,
+        password: data.password,
+      });
 
-      if (!storedUser) {
-        throw new Error("No account found. Please signup first.");
-      }
+      const user = res.data;
+      localStorage.setItem("user", JSON.stringify(user));
 
-      const isValid =
-        data.email === storedUser.email &&
-        data.password === storedUser.password;
-
-      if (!isValid) {
-        throw new Error("Invalid email or password");
-      }
-
-      if (storedUser.role === "plumber") {
+      
+      if (user.role === "PLUMBER") {
         navigate(route.PlumberDashboard);
       } else {
         navigate(route.ConsumerDashboard);
       }
+
     } catch (error) {
-      setAuthError(error.message);
+      console.error("Login error:", error);
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Invalid email or password. Please try again.";
+      setAuthError(message);
     } finally {
       setLoading(false);
     }
@@ -71,13 +73,13 @@ export default function Login() {
           error={errors.password?.message}
         />
 
-        <button type="submit" disabled={loading} className="auth-btn">
+        <button type="submit" disabled={loading} className="auth-btn auth-btn--ready">
           {loading && <span className="btn-spinner" />}
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
         <p className="auth-footer">
-          Need a PlumbConnect account?{" "}
+          Need a Thrump Fix account?{" "}
           <span className="auth-link" onClick={() => navigate(route.Signup)}>
             REGISTER
           </span>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import route from "../../utils/routes";
 
 const NAV_ITEMS = [
@@ -38,6 +38,16 @@ const List = ({ items }) => (
 export default function TermsPage() {
   const [activeTab, setActiveTab] = useState("terms");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // If opened in a new tab, window.history.length === 1, so we navigate to signup instead
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(route.Signup);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -53,7 +63,7 @@ export default function TermsPage() {
             <span className="font-bold text-blue-900 text-base">Thrump Fix</span>
           </div>
           <button
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -64,17 +74,18 @@ export default function TermsPage() {
         </div>
 
         {/* Tab nav */}
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex gap-0 border-b border-transparent -mb-px">
+        <div className="max-w-4xl mx-auto px-4 border-b border-gray-200">
+          <div className="flex">
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`px-4 py-3 text-xs font-semibold tracking-wide border-b-2 transition-all ${
-                  activeTab === item.id
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-400 hover:text-gray-600"
-                }`}
+                style={{
+                  borderBottom: activeTab === item.id ? "2px solid #2563eb" : "2px solid transparent",
+                  color: activeTab === item.id ? "#2563eb" : "#9ca3af",
+                  marginBottom: "-1px",
+                }}
+                className="px-4 py-3 text-xs font-semibold tracking-wide transition-all hover:text-gray-600 bg-transparent"
               >
                 {item.label}
               </button>
@@ -365,6 +376,17 @@ export default function TermsPage() {
             By using the Thrump Fix Platform, you confirm that you have read, understood, and agree to be legally bound by these terms.
           </p>
           <p className="text-xs text-gray-300 mt-1">© {new Date().getFullYear()} Thrump Fix · Federal Republic of Nigeria</p>
+
+          {/* Back to Signup — useful when opened in a new tab */}
+          <button
+            onClick={handleBack}
+            className="mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Done — Back to Signup
+          </button>
         </div>
       </div>
     </div>
