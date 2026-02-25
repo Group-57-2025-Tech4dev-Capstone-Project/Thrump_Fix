@@ -56,6 +56,12 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ allow Swagger UI
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
 
                         // ✅ PUBLIC READ ACCESS
                         .requestMatchers(
