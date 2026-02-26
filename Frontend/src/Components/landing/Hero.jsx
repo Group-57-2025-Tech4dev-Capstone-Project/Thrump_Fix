@@ -2,6 +2,8 @@ import Container from "../landing/Container";
 import { Card } from "../card/Card";
 import { useNavigate } from "react-router-dom";
 import route from "../../utils/routes";
+import HomeIcon from "../icons/Home";
+import BadgeIcon from "../icons/Badge";
 
 export default function Hero() {
   const navigate = useNavigate();
@@ -39,15 +41,16 @@ export default function Hero() {
             <div className="flex items-center gap-4">
 
               <div className="bg-blue-100 text-blue-600 p-3 rounded-lg">
-                {/* <Home size={22} /> */}
+                <HomeIcon size={20} />
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900">
+                
+                <h3 className="font-semibold text-gray-900 text-lg">
                   I need a Plumber
                 </h3>
 
-                <p className="text-base text-gray-500">
+                <p className="text-xs text-gray-500">
                   Connect with verified pros
                 </p>
               </div>
@@ -65,15 +68,15 @@ export default function Hero() {
             <div className="flex items-center gap-4">
 
               <div className="bg-gray-100 text-gray-600 p-3 rounded-lg">
-                {/* <Wrench size={22} /> */}
+                <BadgeIcon/>
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-gray-900 text-lg">
                   I am a Plumber
                 </h3>
 
-                <p className="text-base text-gray-500">
+                <p className="text-xs text-gray-500">
                   Get verified leads today
                 </p>
               </div>

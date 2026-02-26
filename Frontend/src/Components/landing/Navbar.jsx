@@ -1,6 +1,7 @@
 import Container from "../landing/Container";
 import { Link } from "react-router-dom";
 import Button from "../buttons/Buttons";
+import LogoIcon from "../icons/Logo";
 
 export default function LandingNavbar() {
   return (
@@ -9,12 +10,7 @@ export default function LandingNavbar() {
       <Container>
         <div className="flex items-center justify-between py-4">
 
-          <div className="flex gap-2 item-center">
-            <img src="./icon.svg" alt="icon" />
-            <h1 className="text-xl font-bold text-blue-600">
-              PlumbConnect
-            </h1>
-          </div>
+          <LogoIcon />
 
 
           {/* Buttons */}
@@ -22,14 +18,14 @@ export default function LandingNavbar() {
           <div className="flex items-center gap-3">
 
             <Link to="/signup">
-              <Button variant="outline" size="md">
-                Sign Up
+              <Button variant="outline" size="sm">
+                Sign up
               </Button>
             </Link>
 
             <Link to="/login">
-              <Button variant="outline" size="md">
-                Login
+              <Button variant="primary" size="sm">
+                Log in
               </Button>
             </Link>
 
