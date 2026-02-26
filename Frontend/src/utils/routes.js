@@ -6,7 +6,8 @@ const route = {
     PlumberDashboard: "/plumber/dashboard",
     PostJob: "/consumer/postJob",
     Pricing: "/pricing",
-    Terms: "/terms&conditions"
+    Terms: "/terms&conditions",
+    Payment: "/payment",
     // PlumberList: "/consumer/plumberList",
     // AvailableJob: "/Plumber/AvailableJob",
     // ActiveJob: "/Plumber/ActiveJob",

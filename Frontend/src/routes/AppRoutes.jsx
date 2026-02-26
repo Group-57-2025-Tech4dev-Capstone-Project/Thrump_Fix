@@ -6,6 +6,7 @@ import Login from "../pages/publicUsers/Login";
 import Signup from "../pages/publicUsers/SignUp";
 import PricingPage from "../pages/publicUsers/PricingPage";
 import TermsPage from "../pages/publicUsers/TermsPage";
+import PaymentPage from "../pages/publicUsers/PaymentPage";
 
 // Customer Pages
 import CustomerDashboard from "../pages/customers/CustomerDashboard";
@@ -33,6 +34,8 @@ export default function AppRoutes(){
             <Route path={route.Signup} element={<Signup/>}></Route>
             <Route path={route.Pricing} element={<PricingPage/>}></Route>
             <Route path={route.Terms} element={<TermsPage/>}></Route>
+            <Route path={route.Payment} element={<PaymentPage />} />
+            
 
 
             {/* Consumer */}
