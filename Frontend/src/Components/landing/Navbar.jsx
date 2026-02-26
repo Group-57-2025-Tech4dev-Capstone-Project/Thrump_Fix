@@ -9,28 +9,31 @@ export default function LandingNavbar() {
       <Container>
         <div className="flex items-center justify-between py-4">
 
-         
-          <h1 className="text-xl font-bold text-blue-600">
-             PlumbConnect
-          </h1>
+          <div className="flex gap-2 item-center">
+            <img src="./icon.svg" alt="icon" />
+            <h1 className="text-xl font-bold text-blue-600">
+              PlumbConnect
+            </h1>
+          </div>
+
 
           {/* Buttons */}
-          
-           <div className="flex items-center gap-3">
 
-                <Link to="/signup">
-                <Button variant="outline" size="md">
-                    Sign Up
-                </Button>
-                </Link>
+          <div className="flex items-center gap-3">
 
-                <Link to="/login">
-                <Button variant="outline" size="md">
-                    Login
-                </Button>
-                </Link>
+            <Link to="/signup">
+              <Button variant="outline" size="md">
+                Sign Up
+              </Button>
+            </Link>
 
-            </div>
+            <Link to="/login">
+              <Button variant="outline" size="md">
+                Login
+              </Button>
+            </Link>
+
+          </div>
         </div>
       </Container>
 
