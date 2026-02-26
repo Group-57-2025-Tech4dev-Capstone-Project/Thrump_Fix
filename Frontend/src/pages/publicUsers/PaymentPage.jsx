@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import route from "../../utils/routes";
+import api from "../../utils/api";
 
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
@@ -17,16 +18,27 @@ const proFeatures = [
 
 export default function PaymentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from; // "dashboard" or undefined
+
   const [isBusiness, setIsBusiness] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError("");
+    try {
+      await api.post("/subscription/start");
+      // Both flows go to Login — fresh login fetches updated subscription status
+      // so the orange banner is gone when they come back
       navigate(route.Login);
-    }, 1000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Payment failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,7 +47,7 @@ export default function PaymentPage() {
       {/* Back header */}
       <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 pt-7 pb-4">
         <button
-          onClick={() => navigate(route.Pricing)}
+          onClick={() => navigate(from === "dashboard" ? route.CustomerDashboard : route.Pricing)}
           className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-700 hover:text-blue-600 transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -48,7 +60,7 @@ export default function PaymentPage() {
       {/* Two fluid columns */}
       <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 pb-16 flex flex-col md:flex-row gap-6 md:items-start">
 
-        {/* LEFT*/}
+        {/* LEFT */}
         <div className="w-full md:flex-1 min-w-0">
 
           <p className="text-[15px] font-bold text-gray-900 mb-3">Payment method</p>
@@ -148,7 +160,7 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/*RIGHT*/}
+        {/* RIGHT */}
         <div className="w-full md:flex-1 min-w-0">
           <div
             className="bg-white p-6 sm:p-7"
@@ -197,6 +209,11 @@ export default function PaymentPage() {
               <span>Due today</span>
               <span>₦5,000</span>
             </div>
+
+            {/* Error message */}
+            {error && (
+              <p className="text-[12px] text-red-500 text-center mb-3">{error}</p>
+            )}
 
             <button
               onClick={handleSubscribe}
