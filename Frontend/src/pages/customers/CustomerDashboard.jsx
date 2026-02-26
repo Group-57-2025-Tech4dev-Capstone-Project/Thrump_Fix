@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../Layouts/DashboardLayout";
 import AssistantOverlay from "./AssistantOverlay";
-
-const API_URL = "http://localhost:5000";
+import api from "../../utils/api";
 
 const STATUS_STYLES = {
   accepted: "text-green-600",
@@ -12,37 +11,54 @@ const STATUS_STYLES = {
 };
 
 export default function ConsumerDashboard() {
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const firstName = user?.fullName?.split(" ")[0] || "User";
+  // cached user from localStorage
+  const cached = localStorage.getItem("user");
+  const cachedUser = cached ? JSON.parse(cached) : null;
 
+  const [user, setUser] = useState(cachedUser);
   const [jobs, setJobs] = useState([]);
   const [showOverlay, setShowOverlay] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const firstName = user?.fullName?.split(" ")[0] || "User";
+
+  // Fetch fresh user profile from backend on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/users/me");
+        setUser(res.data);
+        
+        localStorage.setItem("user", JSON.stringify({
+          ...cachedUser,
+          ...res.data,
+        }));
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Fetch jobs
   const fetchJobs = async () => {
+    const userId = user?.id || cachedUser?.userId;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch(
-        `${API_URL}/jobs?consumerId=${user?.id}`
-      );
-
-      if (!res.ok) throw new Error("Failed to fetch jobs");
-
-      const data = await res.json();
-      setJobs(data);
+      //confirm real jobs endpoint
+      const res = await api.get(`/jobs?consumerId=${userId}`);
+      setJobs(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch jobs:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-
     fetchJobs();
     const interval = setInterval(fetchJobs, 5000);
     return () => clearInterval(interval);
@@ -84,7 +100,7 @@ export default function ConsumerDashboard() {
           </div>
         )}
 
-        {/* JOB LIST*/}
+        {/* JOB LIST */}
         {!loading && jobs.length > 0 && (
           <div className="flex flex-col gap-4">
             {jobs.map((job) => {
@@ -95,19 +111,16 @@ export default function ConsumerDashboard() {
               return (
                 <div key={job.id} className="bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-3">
 
-                  {/* ID + DATE*/}
+                  {/* ID + DATE */}
                   <div>
                     <p className="text-xs text-gray-400 font-mono mb-1">
                       ID: {job.id}
                     </p>
-
-                    {/* 🆕 Date added here */}
                     {formattedDate && (
                       <p className="text-xs text-gray-400 mb-2">
                         Posted on {formattedDate}
                       </p>
                     )}
-
                     <div className="flex items-center gap-1 text-blue-600">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0">
                         <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.003 3.5-4.697 3.5-8.328a8.25 8.25 0 00-16.5 0c0 3.63 1.556 6.326 3.5 8.328a19.579 19.579 0 002.682 2.282 16.975 16.975 0 001.145.742z" clipRule="evenodd" />
@@ -118,7 +131,7 @@ export default function ConsumerDashboard() {
                     </div>
                   </div>
 
-                  {/* ISSUE + STATUS */}
+                  {/* ISSUE STATUS */}
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Issue</p>
@@ -129,7 +142,7 @@ export default function ConsumerDashboard() {
                     </span>
                   </div>
 
-                  {/* PLUMBER SECTION — ACCEPTED */}
+                  {/* PLUMBER ACCEPTED */}
                   {job.status === "accepted" && job.plumber && (
                     <div className="flex items-center justify-between gap-2">
                       <div>

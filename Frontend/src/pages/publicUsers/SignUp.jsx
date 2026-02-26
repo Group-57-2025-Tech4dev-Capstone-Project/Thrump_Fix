@@ -75,7 +75,7 @@ export default function Signup() {
 
   const isReady = isValid && agreed && !!idFile;
 
-  // Fetch states on mount
+
   useEffect(() => {
     const fetchStates = async () => {
       try {
@@ -138,22 +138,22 @@ export default function Signup() {
 
     try {
       const formData = new FormData();
-      formData.append("image", idFile);                          // ← file object
+      formData.append("image", idFile);
       formData.append("fullName", data.fullName);
       formData.append("email", data.email);
-      formData.append("phoneNumber", data.phoneNumber);          // ← phoneNumber not phoneNo
+      formData.append("phoneNumber", data.phoneNumber);
       formData.append("password", data.password);
-      formData.append("role", role);                             // ← CUSTOMER or PLUMBER
-      formData.append("stateId", data.stateId);                  // ← ID from dropdown
-      formData.append("localGovernanceAreaId", data.lgaId);      // ← ID from dropdown
-      formData.append("subRegionId", data.subRegionId);          // ← ID from dropdown
-      formData.append("acceptedPrivacyPolicy", true);            // ← required by backend
+      formData.append("role", role);
+      formData.append("stateId", data.stateId);  
+      formData.append("localGovernanceAreaId", data.lgaId);
+      formData.append("subRegionId", data.subRegionId);
+      formData.append("acceptedPrivacyPolicy", true);
 
       const res = await api.post("/auth/register/with-image", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Registered:", res.data);
+      // console.log("Registered:", res.data);
       navigate(route.Pricing);
 
     } catch (error) {
@@ -201,7 +201,7 @@ export default function Signup() {
         <Input
           label="Phone Number"
           placeholder="08012345678"
-          {...register("phoneNumber", {             // ← updated to match API
+          {...register("phoneNumber", {
             required: "Phone number is required",
             pattern: {
               value: /^(\+234|0)[789][01]\d{8}$/,
@@ -226,7 +226,6 @@ export default function Signup() {
           error={errors.password?.message}
         />
 
-        {/* State — dynamic from API, value is ID */}
         <div className="input-field">
           <label>State</label>
           <select
@@ -243,7 +242,6 @@ export default function Signup() {
           {errors.stateId && <p className="errorText">{errors.stateId.message}</p>}
         </div>
 
-        {/* LGA — loads after state is picked */}
         <div className="input-field">
           <label>Local Government Area (LGA)</label>
           <select
@@ -267,7 +265,6 @@ export default function Signup() {
           {errors.lgaId && <p className="errorText">{errors.lgaId.message}</p>}
         </div>
 
-        {/* SubRegion — loads after LGA is picked */}
         <div className="input-field">
           <label>LCDA / Sub Region</label>
           <select

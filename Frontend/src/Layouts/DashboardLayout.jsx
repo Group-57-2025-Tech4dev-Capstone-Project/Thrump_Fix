@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import route from "../utils/routes";
 import Logo from "../assets/Logo.svg?react"
+import api from "../utils/api"
 
 export default function DashboardLayout({
   children,
@@ -16,10 +17,16 @@ export default function DashboardLayout({
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [avatar, setAvatar] = useState(user?.avatar || null);
 
-  function handleLogout() {
+  async function handleLogout() {
+  try {
+    await api.post("/auth/logout");
+  } catch (err) {
+
+  } finally {
     localStorage.removeItem("user");
     navigate(route.Login);
   }
+}
 
   function handleAvatarClick() {
     fileInputRef.current.click();

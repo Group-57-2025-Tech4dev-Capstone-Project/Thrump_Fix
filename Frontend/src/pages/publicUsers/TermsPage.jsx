@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import route from "../../utils/routes";
 
@@ -39,16 +38,6 @@ const Divider = ({ title }) => (
 
 export default function TermsPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // If opened in a new tab, window.history.length === 1, so we navigate to signup instead
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate(route.Signup);
-    }
-  };
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -82,8 +71,6 @@ export default function TermsPage() {
             Back
           </button>
         </div>
-
-
       </div>
 
       {/* Content */}
@@ -359,7 +346,6 @@ export default function TermsPage() {
             By using the Thrump Fix Platform, you confirm that you have read, understood, and agree to be legally bound by these terms.
           </p>
           <p className="text-xs text-gray-300 mt-1">© {new Date().getFullYear()} Thrump Fix · Federal Republic of Nigeria</p>
-
           <button
             onClick={handleBack}
             className="mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors"
