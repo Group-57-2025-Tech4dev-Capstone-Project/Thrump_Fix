@@ -42,52 +42,59 @@ public class AuthController {
     // =========================================================
     // ✅ REGISTER USER
     // =========================================================
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(
-            @RequestBody UserRegisterRequest request // supports MultipartFile upload
-    ) {
-        return ResponseEntity.ok(authService.register(request));
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<AuthResponse> register(
+//            @Valid @RequestBody UserRegisterRequest request // supports MultipartFile upload
+//    ) {
+//        return ResponseEntity.ok(authService.register(request));
+//    }
 
-
-    @PostMapping(value = "register/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "register/with-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AuthResponse> uploadImage(
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("fullName") String fullName,
-            @RequestParam("email") String email,
-            @RequestParam("phoneNumber") String phoneNumber,
-            @RequestParam("password") String password,
-            @RequestParam("role") String role,
-            @RequestParam("stateId") String stateId,
-            @RequestParam("localGovernanceAreaId") String localGovernanceAreaId,
-            @RequestParam("subRegionId") String subRegionId,
-            @RequestParam("acceptedPrivacyPolicy") String acceptedPrivacyPolicy
+            @Valid @ModelAttribute UserRegisterRequest request
     ) {
-
-        UserRegisterRequest request = new UserRegisterRequest();
-
-        // ✅ populate request object
-        request.setImage(image);
-        request.setFullName(fullName);
-        request.setEmail(email);
-        request.setPhoneNumber(phoneNumber);
-        request.setPassword(password);
-
-        // ✅ convert role string → enum
-        request.setRole(Role.valueOf(role.toUpperCase()));
-
-        request.setStateId(Long.valueOf(stateId));
-        request.setLocalGovernanceAreaId(Long.valueOf(localGovernanceAreaId));
-        request.setSubRegionId(Long.valueOf(subRegionId));
-
-        // ✅ convert checkbox string → boolean
-        request.setAcceptedPrivacyPolicy(
-                acceptedPrivacyPolicy.equalsIgnoreCase("true") ||
-                        acceptedPrivacyPolicy.equalsIgnoreCase("on")
-        );
-
         return ResponseEntity.ok(authService.register(request));
     }
+
+//    @PostMapping(value = "register/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<AuthResponse> uploadImage( @Valid
+//            @RequestParam("image") MultipartFile image,
+//            @RequestParam("fullName") String fullName,
+//            @RequestParam("email") String email,
+//            @RequestParam("phoneNumber") String phoneNumber,
+//            @RequestParam("password") String password,
+//            @RequestParam("role") String role,
+//            @RequestParam("stateId") String stateId,
+//            @RequestParam("localGovernanceAreaId") String localGovernanceAreaId,
+//            @RequestParam("subRegionId") String subRegionId,
+//            @RequestParam("acceptedPrivacyPolicy") String acceptedPrivacyPolicy
+//    ) {
+//
+//        UserRegisterRequest request = new UserRegisterRequest();
+//
+//        // ✅ populate request object
+//        request.setImage(image);
+//        request.setFullName(fullName);
+//        request.setEmail(email);
+//        request.setPhoneNumber(phoneNumber);
+//        request.setPassword(password);
+//
+//        // ✅ convert role string → enum
+//        request.setRole(Role.valueOf(role.toUpperCase()));
+//
+//        request.setStateId(Long.valueOf(stateId));
+//        request.setLocalGovernanceAreaId(Long.valueOf(localGovernanceAreaId));
+//        request.setSubRegionId(Long.valueOf(subRegionId));
+//
+//        // ✅ convert checkbox string → boolean
+//        request.setAcceptedPrivacyPolicy(
+//                acceptedPrivacyPolicy.equalsIgnoreCase("true") ||
+//                        acceptedPrivacyPolicy.equalsIgnoreCase("on")
+//        );
+//
+//        return ResponseEntity.ok(authService.register(request));
+//    }
 
 
     // =========================================================

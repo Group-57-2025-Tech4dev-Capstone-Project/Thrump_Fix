@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.service;
 
 import com.WTFCapestone.Capestone.dto.request.CreateJobRequest;
+import com.WTFCapestone.Capestone.dto.response.AvailableJobResponse;
 import com.WTFCapestone.Capestone.dto.response.CreateJobResponse;
 import com.WTFCapestone.Capestone.dto.response.JobHistoryResponse;
 
@@ -12,5 +13,9 @@ public interface JobService {
 
     void acceptJob(Long jobId, Long plumberId);
     List<JobHistoryResponse> jobHistoryRecord(Long customerId);
+
+    // ✅ ADD
+    List<AvailableJobResponse> availableJobs();
+
 
 }

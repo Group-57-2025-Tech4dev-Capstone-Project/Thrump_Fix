@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.dto.response;
 
 import com.WTFCapestone.Capestone.entity.AvailabilityStatus;
+import com.WTFCapestone.Capestone.entity.OnlineStatus;
 import com.WTFCapestone.Capestone.entity.VerificationStatus;
 import lombok.*;
 
@@ -28,5 +29,6 @@ public class PlumberProfileResponse {
     private String availabilityStatus;
 
     private boolean verified;
+
 
 }

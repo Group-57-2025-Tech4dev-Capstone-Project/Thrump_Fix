@@ -12,42 +12,38 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class UserRegisterRequest {
-    @NotBlank(message = "Full name is required")
-    private String fullName;
-
-    @NotBlank(message = "Phone number required")
-    private String phoneNumber;
-
-    @Email
-    @NotBlank(message = "Email is required")
-    private String email;
-
-    @NotBlank(message = "Role required")
-    private Role role;  //making sure that the roles used has are the exact roles defined in our Role enum
-
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    private String password;
-
-    @NotNull(message = "National ID photo is required")
     private MultipartFile image;
 
-    @NotNull(message = "Please select sate")
+    @NotBlank
+    private String fullName;
+
+    @Email(message = "Invalid email format")
+    @NotBlank
+    private String email;
+
+    @NotBlank
+    @Size(min = 10, message = "Phone number must be at least 10 digits")
+    private String phoneNumber;
+
+    @NotBlank
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*\\d).{6,}$",
+            message = "Password must contain at least one uppercase letter and one digit"
+    )
+    private String password;
+
+    private Role role;
+
+    @NotNull
     private Long stateId;
 
-    @NotNull(message = "Please select Local Governance Area")
+    @NotNull
     private Long localGovernanceAreaId;
 
-    @NotNull(message = "Please select region")
+    @NotNull
     private Long subRegionId;
 
-    @NotNull(message = "Privacy & Policy is empty")
+    @NotNull
     private Boolean acceptedPrivacyPolicy;
-
-//    @NotNull(message = "You must accept Privacy & Policy")
-//    private String acceptedPrivacyPolicy;
-
-//    @NotBlank(message = "Privacy and Policy missing")
-//    private String acceptedPrivacyAndPolicyVersion; //What if this becomes a boolean that gets true when a user tick the Privacy and policy box
-
 }

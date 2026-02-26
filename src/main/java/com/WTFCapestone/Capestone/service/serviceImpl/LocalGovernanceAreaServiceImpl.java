@@ -5,6 +5,7 @@ import com.WTFCapestone.Capestone.dto.response.LocalGovernanceAreaResponse;
 import com.WTFCapestone.Capestone.entity.LocalGovernanceArea;
 import com.WTFCapestone.Capestone.entity.State;
 import com.WTFCapestone.Capestone.entity.SubRegion;
+import com.WTFCapestone.Capestone.exception.ResourceNotFoundException;
 import com.WTFCapestone.Capestone.repository.LocalGovernanceAreaRepository;
 import com.WTFCapestone.Capestone.repository.StateRepository;
 import com.WTFCapestone.Capestone.repository.SubRegionRepository;
@@ -153,6 +154,23 @@ public class LocalGovernanceAreaServiceImpl implements LocalGovernanceAreaServic
                 .orElseThrow(() -> new RuntimeException("LGA not found"));
 
         lgaRepository.delete(lga);
+    }
+
+    @Override
+    public LocalGovernanceAreaResponse getLga(Long stateId, Long lgaId) {
+
+        LocalGovernanceArea lga = lgaRepository.findById(lgaId)
+                .orElseThrow(() -> new ResourceNotFoundException("LGA not found"));
+
+        // ✅ ensure LGA belongs to the state
+        if (!lga.getState().getId().equals(stateId)) {
+            throw new RuntimeException("LGA does not belong to the specified state");
+        }
+
+        return new LocalGovernanceAreaResponse(
+                lga.getId(),
+                lga.getName()
+        );
     }
 
 }

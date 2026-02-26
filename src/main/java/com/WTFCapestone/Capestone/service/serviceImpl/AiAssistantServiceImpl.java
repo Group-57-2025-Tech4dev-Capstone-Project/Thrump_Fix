@@ -27,17 +27,14 @@ public class AiAssistantServiceImpl implements AiAssistantService {
 
         AiMatchRequest request = AiMatchRequest.builder()
                 .jobId(job.getId())
+                .region(job.getState().getName())
                 .lga(job.getLocalGovernanceArea().getName())
-                .lcda(job.getLocalGovernanceArea().getName())
-                .region(job.getSubRegion().getName())
+                .lcda(job.getSubRegion().getName()) //lca
                 .build();
 
-//        return webClient.post()
-//                .uri("/match")   // ⚠ see note below
-//                .bodyValue(request)
-//                .retrieve()
-//                .bodyToMono(AiMatchResponse.class)
-//                .block();
+//        Region -> 1 -> state,
+//                Lga -> 2 -> lga,
+//                lcda -> 3 -> subregion
 
         String rawResponse = webClient.post()
                 .uri("/match")
@@ -51,7 +48,8 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         try {
             return new ObjectMapper().readValue(rawResponse, AiMatchResponse.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            // ✅ REPLACED RuntimeException
+            throw new RuntimeException("Failed to parse AI response");
         }
     }
 }

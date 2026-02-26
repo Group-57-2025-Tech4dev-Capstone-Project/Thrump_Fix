@@ -1,5 +1,6 @@
 package com.WTFCapestone.Capestone.dto.response;
 
+import com.WTFCapestone.Capestone.entity.OnlineStatus;
 import com.WTFCapestone.Capestone.entity.Role;
 import com.WTFCapestone.Capestone.entity.VerificationStatus;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,8 @@ public class AuthResponse {
     private Role role;
 
     private VerificationStatus verificationStatus;
+
+    private OnlineStatus onlineStatus;
 
     private String token;
 

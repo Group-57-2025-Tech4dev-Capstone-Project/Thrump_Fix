@@ -18,5 +18,7 @@ public interface SubRegionService {
 
     SubRegionResponse getSubRegionByName(String name);
 
+    SubRegionResponse updateSubRegion(Long id, SubRegionRequest request);
+
     SubRegionResponse getSubRegionByNameAndLGA(String subName, Long lgaId);
 }

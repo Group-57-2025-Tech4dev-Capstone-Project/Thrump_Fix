@@ -25,6 +25,8 @@ public interface LocalGovernanceAreaService {
 
     LocalGovernanceAreaResponse getLGAByName(String name);
 
+    LocalGovernanceAreaResponse getLga(Long stateId, Long lgaId);
+
     LocalGovernanceAreaResponse getLGAByNameAndState(String lgaName, Long stateId);
 
 }

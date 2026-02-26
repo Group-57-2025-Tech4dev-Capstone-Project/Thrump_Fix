@@ -1,6 +1,8 @@
 package com.WTFCapestone.Capestone.config;
 
+import com.WTFCapestone.Capestone.security.JwtActivityFilter;
 import com.WTFCapestone.Capestone.security.JwtAuthenticationFilter;
+import com.WTFCapestone.Capestone.security.RateLimitFilter;
 import com.WTFCapestone.Capestone.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +21,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    private RateLimitFilter rateLimitFilter;
+
+    @Autowired
+    private JwtActivityFilter jwtActivityFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,6 +50,7 @@ public class SecurityConfig {
         return provider;
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            AuthenticationProvider authenticationProvider)
@@ -52,8 +61,9 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtActivityFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         // ✅ allow Swagger UI

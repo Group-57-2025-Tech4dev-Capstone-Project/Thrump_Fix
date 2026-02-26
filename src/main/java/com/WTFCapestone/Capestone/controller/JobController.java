@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.controller;
 
 import com.WTFCapestone.Capestone.dto.request.CreateJobRequest;
+import com.WTFCapestone.Capestone.dto.response.AvailableJobResponse;
 import com.WTFCapestone.Capestone.dto.response.CreateJobResponse;
 import com.WTFCapestone.Capestone.dto.response.JobHistoryResponse;
 import com.WTFCapestone.Capestone.service.JobService;
@@ -57,5 +58,13 @@ public class JobController {
     public ResponseEntity<List<JobHistoryResponse>> jobHistory() {
 
         return ResponseEntity.ok(jobService.jobHistoryRecord(null));
+    }
+
+    // ===============================
+// AVAILABLE JOBS (PLUMBER)
+// ===============================
+    @GetMapping("/available")
+    public ResponseEntity<List<AvailableJobResponse>> availableJobs() {
+        return ResponseEntity.ok(jobService.availableJobs());
     }
 }

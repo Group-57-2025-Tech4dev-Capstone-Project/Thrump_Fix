@@ -1,6 +1,5 @@
 package com.WTFCapestone.Capestone.dto.response;
 
-import com.WTFCapestone.Capestone.entity.JobStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,11 +7,17 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class JobHistoryResponse {
+public class AvailableJobResponse {
+
     private Long jobId;
-    private String issueDetails;
+
+    private String customerFullName;
+    private String customerProfilePicture;
+
     private Long subRegionId;
-    private JobStatus status;
+    private String address;
+
+    private String issueDetails;
+
     private LocalDateTime createdAt;
-    private LocalDateTime finalStatusTime;
 }

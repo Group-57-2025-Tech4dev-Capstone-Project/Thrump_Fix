@@ -4,6 +4,7 @@ import com.WTFCapestone.Capestone.dto.request.SubRegionRequest;
 import com.WTFCapestone.Capestone.dto.response.SubRegionResponse;
 import com.WTFCapestone.Capestone.entity.LocalGovernanceArea;
 import com.WTFCapestone.Capestone.entity.SubRegion;
+import com.WTFCapestone.Capestone.exception.ResourceNotFoundException;
 import com.WTFCapestone.Capestone.repository.LocalGovernanceAreaRepository;
 import com.WTFCapestone.Capestone.repository.SubRegionRepository;
 import com.WTFCapestone.Capestone.service.SubRegionService;
@@ -121,6 +122,29 @@ public class SubRegionServiceImpl implements SubRegionService {
                 .orElseThrow(() -> new RuntimeException(
                         "SubRegion '" + subName + "' not found in LGA ID: " + lgaId));
         return new SubRegionResponse(sr.getId(), sr.getName());
+    }
+
+    @Override
+    public SubRegionResponse updateSubRegion(Long id, SubRegionRequest request) {
+
+        SubRegion subRegion = subRegionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("SubRegion not found"));
+
+        LocalGovernanceArea lga = lgaRepository.findById(request.getLocalGovernanceAreaId())
+                .orElseThrow(() -> new ResourceNotFoundException("LGA not found"));
+
+        // ✅ prevent duplicates
+        if (subRegionRepository.existsByNameIgnoreCaseAndLocalGovernanceAreaId(
+                request.getName(), request.getLocalGovernanceAreaId())) {
+            throw new RuntimeException("SubRegion already exists in this LGA");
+        }
+
+        subRegion.setName(request.getName());
+        subRegion.setLocalGovernanceArea(lga);
+
+        SubRegion saved = subRegionRepository.save(subRegion);
+
+        return new SubRegionResponse(saved.getId(), saved.getName());
     }
 
 }

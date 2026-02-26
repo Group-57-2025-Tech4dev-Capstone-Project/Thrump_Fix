@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.service.serviceImpl;
 
 import com.WTFCapestone.Capestone.dto.request.CreateJobRequest;
+import com.WTFCapestone.Capestone.dto.response.AvailableJobResponse;
 import com.WTFCapestone.Capestone.dto.response.CreateJobResponse;
 import com.WTFCapestone.Capestone.dto.response.JobHistoryResponse;
 import com.WTFCapestone.Capestone.entity.*;
@@ -60,6 +61,10 @@ public class JobServiceImpl implements JobService {
             throw new AuthorizationException("Only customers can create jobs");
         }
 
+        if (user.getOnlineStatus() != OnlineStatus.ONLINE) {
+            throw new AuthorizationException("You must be online to post a job");
+        }
+
         // ✅ load location entities
         State state = stateRepository.findById(request.getStateId())
                 .orElseThrow(() -> new ResourceNotFoundException("State not found"));
@@ -80,6 +85,7 @@ public class JobServiceImpl implements JobService {
                 .issueDetails(request.getIssueDetails())
                 .status(JobStatus.LOGGED)
                 .expiresAt(LocalDateTime.now().plusSeconds(5)) // MVP timer
+                //Check if the timer is even working(milliseconds)
                 .build();
 
         jobRepository.saveAndFlush(job);   // commit immediately
@@ -90,6 +96,69 @@ public class JobServiceImpl implements JobService {
         return mapToResponse(job);
     }
 
+    // ===============================
+// Available Jobs
+// ===============================
+    @Override
+    public List<AvailableJobResponse> availableJobs() {
+
+        Long loggedInUserId = SecurityUtils.getCurrentUserId();
+
+        User user = userRepository.findById(loggedInUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // ✅ ensure plumber role
+        if (user.getRole() != Role.PLUMBER) {
+            throw new AuthorizationException("Only plumbers can view available jobs");
+        }
+
+        // ✅ plumber profile
+        PlumberProfile plumber = plumberProfileRepository
+                .findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Plumber profile not found"));
+
+        // ✅ plumber must be online & available
+        if (user.getOnlineStatus() != OnlineStatus.ONLINE ||
+                plumber.getAvailabilityStatus() != AvailabilityStatus.AVAILABLE) {
+            throw new AuthorizationException("You must be online and available");
+        }
+
+        // ✅ Subregion comes from USER (NOT PlumberProfile)
+        Long subRegionId = user.getSubRegion().getId();
+
+        // ✅ fetch jobs still active
+        List<Job> jobs = jobRepository
+                .findByStatusAndSubRegion_IdAndExpiresAtAfter(
+                        JobStatus.LOGGED,
+                        subRegionId,
+                        LocalDateTime.now()
+                );
+
+        return jobs.stream()
+                .map(job -> {
+
+                    // ✅ profile photo safely extracted
+                    String profilePhotoUrl = null;
+
+                    if (job.getCustomer().getProfilePhotoFile() != null) {
+                        profilePhotoUrl =
+                                job.getCustomer()
+                                        .getProfilePhotoFile()
+                                        .getFileName(); // adjust if your StoredFile field name differs
+                    }
+
+                    return new AvailableJobResponse(
+                            job.getId(),
+                            job.getCustomer().getFullName(),
+                            profilePhotoUrl,
+                            job.getSubRegion().getId(),
+                            job.getAddress(),
+                            job.getIssueDetails(),
+                            job.getCreatedAt()
+                    );
+                })
+                .toList();
+    }
     // ===============================
     // ACCEPT JOB
     // ===============================
@@ -113,6 +182,7 @@ public class JobServiceImpl implements JobService {
 
         PlumberProfile plumber = plumberProfileRepository.findById(plumberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Plumber not found"));
+
 
         if (!plumber.getUser().getId().equals(loggedInUserId)) {
             throw new AuthorizationException("You can only accept jobs as yourself");
@@ -171,9 +241,12 @@ public class JobServiceImpl implements JobService {
         return jobs.stream()
                 .map(job -> new JobHistoryResponse(
                         job.getId(),
+                        job.getIssueDetails(),
                         job.getSubRegion().getId(),
                         job.getStatus(),
+                        job.getCreatedAt(),
                         resolveFinalTime(job)
+                        // add the plumber who accepted the job if job status is ACCEPTED
                 ))
                 .toList();
     }

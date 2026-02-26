@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -86,15 +87,38 @@ public class JwtUtil {
         }
     }
 
+    private boolean isTokenExpired(String token) {
+        return parseClaims(token)
+                .getExpiration()
+                .before(new Date());
+    }
+
+
+    public boolean isTokenValidForUser(String token, UserDetails userDetails) {
+        try {
+            final String username = extractUsername(token);
+            return (username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+//    catch (Exception e) {
+//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//        return;
+//    }
+
     /**
      * Parse token claims.
      */
     private Claims parseClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(getSigningKey())
-             //   .requireIssuer("CapestoneAuthService")
+                .requireIssuer("CapestoneAuthService")
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 }

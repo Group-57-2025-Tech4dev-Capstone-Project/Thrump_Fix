@@ -35,11 +35,13 @@ public class SubRegionController {
         return ResponseEntity.ok(subRegionService.getSubRegionByName(name));
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<?> updateSubRegion(@PathVariable Long id,
-//                                             @RequestBody SubRegionRequest request) {
-//        return ResponseEntity.ok(subRegionService.createSubRegion(request));
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateSubRegion(
+            @PathVariable Long id,
+            @RequestBody SubRegionRequest request) {
+
+        return ResponseEntity.ok(subRegionService.updateSubRegion(id, request));
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSubRegion(@PathVariable Long id) {

@@ -30,10 +30,12 @@ public class LocalGovernanceAreaController {
         return ResponseEntity.ok(lgaService.getAllLGA(stateId));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getLGAById(@PathVariable Long id) {
+    @GetMapping("/states/{stateId}/lgas/{lgaId}")
+    public ResponseEntity<?> getLGA(
+            @PathVariable Long stateId,
+            @PathVariable Long lgaId) {
 
-        return ResponseEntity.ok(lgaService.getByState(id));
+        return ResponseEntity.ok(lgaService.getLga(stateId, lgaId));
     }
 
     @GetMapping("/name/{name}")

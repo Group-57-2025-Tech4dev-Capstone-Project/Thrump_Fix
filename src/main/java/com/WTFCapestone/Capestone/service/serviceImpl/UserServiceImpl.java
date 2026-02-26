@@ -63,6 +63,11 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    // ✅ expose entity for internal services
+    public User getCurrentUserEntity() {
+        return getCurrentUser();
+    }
+
     @Override
     public UserResponse getMyProfile() {
         return map(getCurrentUser());

@@ -41,11 +41,7 @@ public class User {
     private String email;
 
     /* Password will be hashed before saving */
-    @NotBlank
     @Column(nullable = false)
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[A-Z]).*$",
-            message = "Password must contain at least one digit and one capital letter")
     private String password;
 
 
@@ -83,7 +79,8 @@ public class User {
     private List<Job> jobs;
 
     @Enumerated(EnumType.STRING)
-    private OnlineStatus onlineStatus;
+    @Column(nullable = false)
+    private OnlineStatus onlineStatus = OnlineStatus.OFFLINE;
 
 
     private Boolean acceptedPrivacyAndPolicy;
