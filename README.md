@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 # Thrump Fix – MVP Platform 
 Thrump Fix is a web application that connects households and businesses with verified professional plumbers for urgent plumbing needs across Nigeria. The platform enables users to quickly locate nearby plumbers, request services and resolve water leaks and sanitation issues before they escalate
 The solution focuses on improving access to reliable plumbing services, reducing water loss, and improving sanitation outcomes in alignment with SDG 6 – Clean Water and Sanitation.
+=======
+# Thrump Fix – MVP Platform
+Thrump Fix is a web application that connects households and businesses with verified professional plumbers for urgent plumbing needs across Nigeria. The platform enables users to quickly locate nearby plumbers, request services and resolve water leaks and sanitation issues before they escalate The solution focuses on improving access to reliable plumbing services, reducing water loss, and improving sanitation outcomes in alignment with SDG 6 – Clean Water and Sanitation.
+>>>>>>> 5ff54bb9f42d54601d6be70e9c63f12651fad3bd
