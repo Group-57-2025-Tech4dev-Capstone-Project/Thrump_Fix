@@ -1,12 +1,12 @@
+import "./RoleToggle.css";
 
- import "./RoleToggle.css"
 export default function RoleToggle({ role, setRole }) {
   return (
-    <div className="role-toggle">
+    <div className={`role-toggle ${role === "PLUMBER" ? "plumber-active" : ""}`}>
       <button
         type="button"
-        className={role === "customer" ? "active" : ""}
-        onClick={() => setRole("customer")}
+        className={role === "CUSTOMER" ? "active" : ""}
+        onClick={() => setRole("CUSTOMER")}
       >
         <span className="icon-customer"></span>
         Customer
@@ -14,13 +14,12 @@ export default function RoleToggle({ role, setRole }) {
 
       <button
         type="button"
-        className={role === "plumber" ? "active" : ""}
-        onClick={() => setRole("plumber")}
+        className={role === "PLUMBER" ? "active" : ""}
+        onClick={() => setRole("PLUMBER")}
       >
-        {/* icon component */}
         <span className="icon-plumber"></span>
         Plumber
       </button>
     </div>
   );
-} 
+}

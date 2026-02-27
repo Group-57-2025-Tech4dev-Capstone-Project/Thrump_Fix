@@ -1,5 +1,6 @@
 
 import "./AuthLayout.css"
+import Logo from "../../assets/Logo.svg?react"
 
 export default function AuthLayout({title, children }) {
   return (

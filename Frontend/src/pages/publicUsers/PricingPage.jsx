@@ -31,10 +31,6 @@ const proFeatures = [
 export default function PricingPage() {
   const navigate = useNavigate();
 
-  const handlePlanClick = () => {
-    navigate(route.Login);
-  };
-
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col items-center px-4 py-12">
 
@@ -64,7 +60,7 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl">
 
-        {/* Starter Card */}
+        {/* Starter Card — goes directly to Login */}
         <Card variant="outline" className="flex-1 flex flex-col p-7">
           <p className="text-xs font-semibold tracking-widest text-gray-400 mb-2">STARTER</p>
           <h2 className="text-3xl font-bold text-gray-900 mb-1">Free Trial</h2>
@@ -89,14 +85,14 @@ export default function PricingPage() {
           <Button
             variant="outline"
             size="lg"
-            onClick={handlePlanClick}
+            onClick={() => navigate(route.Login)}   // ← goes to Login
             className="w-full justify-center tracking-widest text-xs font-bold"
           >
             GET STARTED
           </Button>
         </Card>
 
-        {/* Pro Card */}
+        {/* Pro Card — goes to Payment */}
         <Card className="flex-1 flex flex-col p-7 border-2 border-blue-600 shadow-xl shadow-blue-100">
           <div className="flex items-start justify-between mb-1">
             <h2 className="text-xl font-bold text-gray-900">Thrump Fix Pro</h2>
@@ -125,7 +121,7 @@ export default function PricingPage() {
           <Button
             variant="primary"
             size="lg"
-            onClick={handlePlanClick}
+            onClick={() => navigate(route.Payment)}  // ← goes to Payment
             className="w-full justify-center tracking-widest text-xs font-bold rounded-full"
           >
             GO UNLIMITED
