@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import Card from "../../Components/card/Card.jsx";
+import { Card } from "../../Components/card/Card.jsx";
 import Button from "../../Components/buttons/Buttons";
 import route from "../../utils/routes";
 
