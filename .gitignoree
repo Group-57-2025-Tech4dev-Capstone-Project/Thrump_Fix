@@ -1,19 +1,11 @@
-.env
-env
-env/
-credentials.json
-target
 # Node
 node_modules/
 dist/
 build/
-node_modules
-Frontend/node_modules
-
 
 # Vite
 Frontend/dist/
-Frontend/
+Frontend
 
 # Java / Maven
 target/

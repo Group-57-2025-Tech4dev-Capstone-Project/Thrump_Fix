@@ -32,7 +32,6 @@ public class StoredFile {
 
     /* actual file bytes */
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
     private byte[] data;
 
     private LocalDateTime uploadedAt;
