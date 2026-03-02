@@ -16,7 +16,9 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:3000",
-                                "http://localhost:5173"
+                                "http://localhost:5173",
+                                "https://thrump-fix-lbm8.onrender.com",
+                                "https://thrumpfix-frontend-latest.onrender.com"
                         )
                         .allowedMethods("*")
                         .allowedHeaders("*")

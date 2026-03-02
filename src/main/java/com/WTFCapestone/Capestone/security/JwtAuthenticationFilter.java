@@ -1,6 +1,5 @@
 package com.WTFCapestone.Capestone.security;
 
-import com.WTFCapestone.Capestone.entity.User;
 import com.WTFCapestone.Capestone.repository.UserRepository;
 import com.WTFCapestone.Capestone.service.CustomUserDetailsService;
 import com.WTFCapestone.Capestone.util.JwtUtil;
@@ -10,8 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,21 +22,15 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtUtil jwtUtil;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-
-    @Autowired
-    private TokenBlacklistService blacklistService;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final TokenBlacklistService blacklistService;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // 🚀 Skip JWT filter for authentication endpoints
+        // Skip JWT filter for authentication endpoints
         return request.getServletPath().startsWith("/api/auth");
     }
 
@@ -55,21 +47,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-
-                // 🔴 1. Check blacklist FIRST
+                // 1️⃣ Check blacklist FIRST
                 if (blacklistService.isBlacklisted(token)) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    sendError(response, "TOKEN_REVOKED",
+                            "Your session has been revoked. Please login again.");
                     return;
                 }
 
-                // 🔴 2. Extract email safely
+                // 2️⃣ Extract email safely
                 String email = jwtUtil.extractUsername(token);
 
-                // 🔴 3. Load user from DB
+                // 3️⃣ Load user from DB
                 UserDetails userDetails =
                         customUserDetailsService.loadUserByUsername(email);
 
-                // 🔴 4. VALIDATE TOKEN AGAINST USER
+                // 4️⃣ Validate token
                 if (jwtUtil.isTokenValidForUser(token, userDetails)) {
 
                     UsernamePasswordAuthenticationToken authentication =
@@ -86,17 +78,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
-
                 }
 
             } catch (ExpiredJwtException e) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\":\"Token expired\"}");
-                return; // 🔴 VERY IMPORTANT
+                sendError(response,
+                        "TOKEN_EXPIRED",
+                        "Your session has expired. Please login again.");
+                return;
 
             } catch (Exception e) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                sendError(response,
+                        "INVALID_TOKEN",
+                        "Authentication failed. Please login.");
                 return;
             }
         }
@@ -104,18 +97,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Utility method to send structured JSON error responses
+     */
+    private void sendError(HttpServletResponse response,
+                           String error,
+                           String message) throws IOException {
 
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
+        response.getWriter().write("""
+            {
+              "error": "%s",
+              "message": "%s"
+            }
+            """.formatted(error, message));
+    }
+
+    /**
+     * Extract token from header or cookie (optional use)
+     */
     private String extractToken(HttpServletRequest request) {
 
-        // ✅ 1. Check Authorization header
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
 
-        // ✅ 2. Check HttpOnly cookie
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
                 if ("thrumpfix_auth".equals(cookie.getName())) {
@@ -126,44 +136,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return null;
     }
-
-//    @Override
-//    protected void doFilterInternal(HttpServletRequest request,
-//                                    HttpServletResponse response,
-//                                    FilterChain filterChain)
-//            throws ServletException, IOException {
-//
-//        String authHeader = request.getHeader("Authorization");
-//
-//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-//            String token = authHeader.substring(7);
-//
-//            String email = jwtUtil.getEmailFromJwt(token);
-//            System.out.println("Authenticated user: " + email);
-//
-//            if (blacklistService.isBlacklisted(token)) {
-//                filterChain.doFilter(request, response);
-//                return;
-//            }
-//            if (jwtUtil.isTokenValid(token)) {
-//
-//                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-//
-//                UsernamePasswordAuthenticationToken authentication =
-//                        new UsernamePasswordAuthenticationToken(
-//                                userDetails,
-//                                null,
-//                                userDetails.getAuthorities()
-//                        );
-//
-//                SecurityContextHolder.getContext()
-//                        .setAuthentication(authentication);
-//                System.out.println("Authorities: " + userDetails.getAuthorities());
-//            }
-//        }
-//
-//        filterChain.doFilter(request, response);
-//
-//    }
-//
 }

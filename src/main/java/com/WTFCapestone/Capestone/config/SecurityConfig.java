@@ -5,6 +5,7 @@ import com.WTFCapestone.Capestone.security.JwtAuthenticationFilter;
 import com.WTFCapestone.Capestone.security.RateLimitFilter;
 import com.WTFCapestone.Capestone.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -86,16 +87,9 @@ public class SecurityConfig {
                                 "/api/privacy-policy/latest",
                                 "/api/privacy-policy/**"
                         ).permitAll()
-
                         // 🔒 everything else secured
                         .anyRequest().authenticated()
                 );
-
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/auth/**").permitAll()
-////                        .requestMatchers("/error").permitAll()
-//                        .anyRequest().authenticated()
-//                );
 
         return http.build();
     }

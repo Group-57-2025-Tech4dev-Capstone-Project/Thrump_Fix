@@ -1,10 +1,12 @@
 package com.WTFCapestone.Capestone.controller;
 
 import com.WTFCapestone.Capestone.dto.request.LoginRequest;
+import com.WTFCapestone.Capestone.dto.request.RefreshTokenRequest;
 import com.WTFCapestone.Capestone.dto.request.ResetPasswordRequest;
 import com.WTFCapestone.Capestone.dto.request.UserRegisterRequest;
 import com.WTFCapestone.Capestone.dto.response.AuthResponse;
 import com.WTFCapestone.Capestone.dto.response.UserResponse;
+import com.WTFCapestone.Capestone.entity.RefreshToken;
 import com.WTFCapestone.Capestone.entity.Role;
 import com.WTFCapestone.Capestone.exception.AuthenticationException;
 import com.WTFCapestone.Capestone.exception.BadRequestException;
@@ -123,5 +125,28 @@ public class AuthController {
         authService.logout(token);
 
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+//    @PostMapping("/refresh")
+//    public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest request) {
+//
+//        RefreshToken token = refreshTokenService
+//                .verifyExpiration(
+//                        refreshTokenRepository.findByToken(request.getRefreshToken())
+//                                .orElseThrow(() -> new RuntimeException("Invalid refresh token"))
+//                );
+//
+//        String newAccessToken = jwtUtil.generateTokenFromUsername(token.getUserId());
+//
+//        return ResponseEntity.ok(new JwtResponse(newAccessToken, request.getRefreshToken()));
+//    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthResponse> refreshToken(
+            @RequestBody RefreshTokenRequest request) {
+
+        return ResponseEntity.ok(
+                authService.refreshToken(request.getRefreshToken())
+        );
     }
 }

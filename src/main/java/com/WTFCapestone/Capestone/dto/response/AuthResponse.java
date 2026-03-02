@@ -26,6 +26,7 @@ public class AuthResponse {
     private OnlineStatus onlineStatus;
 
     private String token;
+    private String refreshToken;
 
     private boolean profileCompleted;
 

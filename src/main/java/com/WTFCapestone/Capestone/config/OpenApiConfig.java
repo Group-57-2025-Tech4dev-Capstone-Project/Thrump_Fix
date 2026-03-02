@@ -24,20 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Configuration
 public class OpenApiConfig {
 
-//    @Bean
-//    public OpenAPI plumbConnectOpenAPI() {
-//        return new OpenAPI()
-//                .info(new Info()
-//                        .title("PlumbConnect API")
-//                        .description("Backend API for PlumbConnect platform")
-//                        .version("1.0")
-//                        .contact(new Contact()
-//                                .name("PlumbConnect Dev Team")
-//                                .email("dev@plumbconnect.com"))
-//                        .license(new License()
-//                                .name("Internal Use Only")));
-//    }
-
     @Bean
     public OpenAPI plumbConnectOpenAPI() {
         final String securitySchemeName = "bearerAuth";

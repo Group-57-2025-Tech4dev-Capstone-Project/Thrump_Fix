@@ -62,6 +62,7 @@ public class User {
     /*CHANGED: Both Customers and Plumbers gets verified*/
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
     /* national ID (private, verification only) */
@@ -80,6 +81,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private OnlineStatus onlineStatus = OnlineStatus.OFFLINE;
 
 
@@ -90,6 +92,7 @@ public class User {
     private LocalDateTime acceptedPrivacyAndPolicyAt;
 
     /* Enables future account activation */
+    @Builder.Default
     private Boolean enabled = true;
 
     /* Audit fields */
