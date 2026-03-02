@@ -7,9 +7,10 @@ export default function AuthLayout({title, children }) {
     <div className="auth-wrapper">
 
       {/* Logo at the top */}
-      <div className="auth-logo">
-        <Logo className="auth-logo-icon" />
-        <span className="auth-logo-text">Thrump Fix</span>
+      <div className="auth-logo flex gap-2 items-center ">
+        <img src="./icon.svg" alt="PlumbConnect" />
+        <p className="text-[#2563eb]  font-bold">
+          PlumbConnect</p>
       </div>
 
       {/* White card */}
