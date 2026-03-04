@@ -9,6 +9,9 @@ import FileUpload from "../../Components/fileUpload/FileUpload.jsx";
 import route from "../../utils/routes";
 import api from "../../utils/api";
 import "./signup.css";
+import ArrowdownSignup from "../../assets/ArrowdownSignup.svg?react"
+
+// const [policyUrl, setPolicyUrl] = useState("");
 
 const initialState = {
   role: "CUSTOMER",
@@ -16,6 +19,7 @@ const initialState = {
   agreed: false,
   loading: false,
   submitError: "",
+  policyUrl: "",
 
   // Location
   states: [],
@@ -52,6 +56,8 @@ function signupReducer(state, action) {
       return { ...state, selectedLgaId: action.payload, subRegions: [] };
     case "SET_LOCATION_LOADING":
       return { ...state, locationLoading: action.payload };
+    case "SET_PRIVACY_POLICY":
+      return {...state, policyUrl: action.payload}
     default:
       return state;
   }
@@ -62,7 +68,7 @@ export default function Signup() {
   const {
     role, idFile, agreed, loading, submitError,
     states, lgas, subRegions,
-    selectedStateId, selectedLgaId, locationLoading,
+    selectedStateId, selectedLgaId, locationLoading, policyUrl
   } = state;
 
   const navigate = useNavigate();
@@ -75,6 +81,19 @@ export default function Signup() {
 
   const isReady = isValid && agreed && !!idFile;
 
+
+
+  useEffect(() => {
+    const fetchPolicy = async () => {
+      try {
+        const res = await api.get("/privacy-policy/latest");
+        dispatch({ type: "SET_PRIVACY_POLICY", payload: res.data.documentUrl });
+      } catch (err) {
+        console.error("Failed to fetch Policy:", err);
+      }
+    };
+    fetchPolicy();
+  }, []);
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -158,7 +177,7 @@ export default function Signup() {
 
     } catch (error) {
       console.error("Signup error:", error);
-      // Show the backend error message if available
+      // Show the backend
       const message =
         error.response?.data?.message ||
         error.response?.data ||
@@ -228,60 +247,77 @@ export default function Signup() {
 
         <div className="input-field">
           <label>State</label>
-          <select
-            {...register("stateId", { required: "State is required" })}
-            onChange={(e) => {
-              dispatch({ type: "SET_SELECTED_STATE", payload: e.target.value });
-            }}
-          >
-            <option value="">Select State</option>
-            {states.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              {...register("stateId", { required: "State is required" })}
+              onChange={(e) => {
+                dispatch({ type: "SET_SELECTED_STATE", payload: e.target.value });
+              }}
+            >
+              <option value="">Select State</option>
+              {states.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}          
+            </select>
+            <span className="select-arrow">
+                <ArrowdownSignup/>
+            </span>
+          </div>
+            
           {errors.stateId && <p className="errorText">{errors.stateId.message}</p>}
         </div>
 
         <div className="input-field">
           <label>Local Government Area (LGA)</label>
-          <select
-            {...register("lgaId", { required: "LGA is required" })}
-            disabled={!selectedStateId || locationLoading}
-            onChange={(e) => {
-              dispatch({ type: "SET_SELECTED_LGA", payload: e.target.value });
-            }}
-          >
-            <option value="">
-              {!selectedStateId
-                ? "Select a state first"
-                : locationLoading
-                ? "Loading..."
-                : "Select LGA"}
-            </option>
-            {lgas.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              {...register("lgaId", { required: "LGA is required" })}
+              disabled={!selectedStateId || locationLoading}
+              onChange={(e) => {
+                dispatch({ type: "SET_SELECTED_LGA", payload: e.target.value });
+              }}
+            >
+              <option value="">
+                {!selectedStateId
+                  ? "Select a state first"
+                  : locationLoading
+                  ? "Loading..."
+                  : "Select LGA"}
+              </option>
+              {lgas.map((l) => (
+                <option key={l.id} value={l.id}>{l.name}</option>
+              ))}
+            </select>
+            <span className="select-arrow">
+                <ArrowdownSignup/>
+            </span>
+          </div>
           {errors.lgaId && <p className="errorText">{errors.lgaId.message}</p>}
         </div>
 
         <div className="input-field">
           <label>LCDA / Sub Region</label>
-          <select
-            {...register("subRegionId", { required: "Sub Region is required" })}
-            disabled={!selectedLgaId || locationLoading}
-          >
-            <option value="">
-              {!selectedLgaId
-                ? "Select an LGA first"
-                : locationLoading
-                ? "Loading..."
-                : "Select Sub Region"}
-            </option>
-            {subRegions.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              {...register("subRegionId", { required: "Sub Region is required" })}
+              disabled={!selectedLgaId || locationLoading}
+            >
+              <option value="">
+                {!selectedLgaId
+                  ? "Select an LGA first"
+                  : locationLoading
+                  ? "Loading..."
+                  : "Select Sub Region"}
+              </option>
+              {subRegions.map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
+            <span className="select-arrow">
+              <ArrowdownSignup/>
+            </span>
+          </div>
+
           {errors.subRegionId && <p className="errorText">{errors.subRegionId.message}</p>}
         </div>
 
@@ -299,12 +335,20 @@ export default function Signup() {
           />
           <label htmlFor="terms">
             I agree to the{" "}
-            <Link
+            {/* <Link
               to={route.Terms}
               target="_blank"
               rel="noopener noreferrer"
               className="terms-link"
               onClick={(e) => e.stopPropagation()}
+            >
+              TERMS & CONDITIONS
+            </Link> */}
+            <Link
+              to={policyUrl || route.Terms}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="terms-link"
             >
               TERMS & CONDITIONS
             </Link>

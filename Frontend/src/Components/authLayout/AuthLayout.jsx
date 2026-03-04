@@ -8,9 +8,9 @@ export default function AuthLayout({title, children }) {
 
       {/* Logo at the top */}
       <div className="auth-logo flex gap-2 items-center ">
-        <img src="./icon.svg" alt="PlumbConnect" />
+        <img src="./icon.svg" alt="Trump Fix" />
         <p className="text-[#2563eb]  font-bold">
-          PlumbConnect</p>
+          Thrump Fix</p>
       </div>
 
       {/* White card */}

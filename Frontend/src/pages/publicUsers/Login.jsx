@@ -15,8 +15,13 @@ export default function Login() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
+
+  const email = watch("email", "");
+  const password = watch("password", "");
+  const isFormFilled = email.trim() !== "" && password.trim() !== "";
 
   async function onSubmit(data) {
     setLoading(true);
@@ -31,7 +36,6 @@ export default function Login() {
       const user = res.data;
       localStorage.setItem("user", JSON.stringify(user));
 
-      
       if (user.role === "PLUMBER") {
         navigate(route.PlumberDashboard);
       } else {
@@ -73,7 +77,11 @@ export default function Login() {
           error={errors.password?.message}
         />
 
-        <button type="submit" disabled={loading} className="auth-btn auth-btn--ready">
+        <button
+          type="submit"
+          disabled={!isFormFilled || loading}
+          className={`auth-btn ${isFormFilled ? "auth-btn--ready" : "auth-btn--dim"}`}
+        >
           {loading && <span className="btn-spinner" />}
           {loading ? "Signing in..." : "Sign In"}
         </button>

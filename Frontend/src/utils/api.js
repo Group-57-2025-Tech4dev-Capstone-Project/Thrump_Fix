@@ -1,10 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8081/api",
+  baseURL: "https://thrump-fix-lbm8.onrender.com/api",
 });
 
-// Automatically attach JWT token to every request if it exists
+// attach JWT
 api.interceptors.request.use((config) => {
   const user = localStorage.getItem("user");
   if (user) {
