@@ -59,10 +59,9 @@
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2px;
-  text-transform: uppercase;
   padding: 14px;
   border: none;
-  border-radius: 12px;
+  border-radius: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -72,11 +71,11 @@
 }
 
 .auth-btn--ready {
-  background: #2563eb;
+  background:  #2563EB;
 }
 
 .auth-btn--dim {
-  background: #7b9fd4;
+  background: #a8c4e8;
 }
 
 .auth-btn:hover:not(:disabled) {
@@ -93,12 +92,12 @@
 .auth-footer {
   text-align: center;
   font-size: 13px;
-  color: #9ca3af;
+  color: #475569;
   margin-top: 16px;
 }
 
 .auth-link {
-  color: #3b82f6;
+  color:  #2563EB;
   font-weight: 700;
   cursor: pointer;
 }

@@ -1,7 +1,7 @@
 .role-toggle {
   display: flex;
-  background: #eef2fb;
-  border-radius: 12px;
+  background: #F1F5F9;
+  border-radius: 24px;
   padding: 4px;
   margin-bottom: 24px;
   position: relative;
@@ -15,14 +15,14 @@
   gap: 6px;
   padding: 10px;
   border: none;
-  border-radius: 10px;
+  border-radius: 24px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
   background: transparent;
-  color: #9ca3af;
+  color: #475569;
   position: relative;
   z-index: 1;
   transition: color 0.25s ease;
@@ -38,21 +38,23 @@
   position: absolute;
   top: 4px;
   bottom: 4px;
-  width: calc(50% - 4px);
+  left: 10px;
+  right: 10px;
+  width: calc(50% - 16px);
   background: white;
-  border-radius: 10px;
+  border-radius: 24px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.25s ease;
   transform: translateX(0);
 }
 
-/* Slide pill to the right when Plumber is active */
+/* Plumber is active */
 .role-toggle.plumber-active::before {
-  transform: translateX(calc(100% + 4px));
+  transform: translateX(calc(100% + 16px));
 }
 
 /* Icon placeholders */
-.icon-customer,
+/* .icon-customer,
 .icon-plumber {
   width: 16px;
   height: 16px;
@@ -60,4 +62,4 @@
   border-radius: 50%;
   background: currentColor;
   opacity: 0.4;
-}
+} */
