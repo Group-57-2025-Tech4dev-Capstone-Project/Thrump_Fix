@@ -11,15 +11,12 @@ import api from "../../utils/api";
 import "./signup.css";
 import ArrowdownSignup from "../../assets/ArrowdownSignup.svg?react"
 
-// const [policyUrl, setPolicyUrl] = useState("");
-
 const initialState = {
   role: "CUSTOMER",
   idFile: null,
   agreed: false,
   loading: false,
   submitError: "",
-  policyUrl: "",
 
   // Location
   states: [],
@@ -56,8 +53,6 @@ function signupReducer(state, action) {
       return { ...state, selectedLgaId: action.payload, subRegions: [] };
     case "SET_LOCATION_LOADING":
       return { ...state, locationLoading: action.payload };
-    case "SET_PRIVACY_POLICY":
-      return {...state, policyUrl: action.payload}
     default:
       return state;
   }
@@ -68,7 +63,7 @@ export default function Signup() {
   const {
     role, idFile, agreed, loading, submitError,
     states, lgas, subRegions,
-    selectedStateId, selectedLgaId, locationLoading, policyUrl
+    selectedStateId, selectedLgaId, locationLoading
   } = state;
 
   const navigate = useNavigate();
@@ -80,20 +75,6 @@ export default function Signup() {
   } = useForm({ shouldUnregister: true, mode: "onChange" });
 
   const isReady = isValid && agreed && !!idFile;
-
-
-
-  useEffect(() => {
-    const fetchPolicy = async () => {
-      try {
-        const res = await api.get("/privacy-policy/latest");
-        dispatch({ type: "SET_PRIVACY_POLICY", payload: res.data.documentUrl });
-      } catch (err) {
-        console.error("Failed to fetch Policy:", err);
-      }
-    };
-    fetchPolicy();
-  }, []);
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -171,8 +152,7 @@ export default function Signup() {
       const res = await api.post("/auth/register/with-image", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      // console.log("Registered:", res.data);
+      localStorage.setItem("user", JSON.stringify(res.data));
       navigate(route.Pricing);
 
     } catch (error) {
@@ -187,6 +167,7 @@ export default function Signup() {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
+
 
   return (
     <AuthLayout title="Account Setup">
@@ -219,11 +200,11 @@ export default function Signup() {
 
         <Input
           label="Phone Number"
-          placeholder="08012345678"
+          placeholder="0801-234-5678"
           {...register("phoneNumber", {
             required: "Phone number is required",
             pattern: {
-              value: /^(\+234|0)[789][01]\d{8}$/,
+              value: /^0[789][01]\d{7}$/,
               message: "Must be a valid Nigerian phone number",
             },
           })}
@@ -251,6 +232,7 @@ export default function Signup() {
             <select
               {...register("stateId", { required: "State is required" })}
               onChange={(e) => {
+                register("stateId").onChange(e);
                 dispatch({ type: "SET_SELECTED_STATE", payload: e.target.value });
               }}
             >
@@ -274,6 +256,7 @@ export default function Signup() {
               {...register("lgaId", { required: "LGA is required" })}
               disabled={!selectedStateId || locationLoading}
               onChange={(e) => {
+                register("lgaId").onChange(e);
                 dispatch({ type: "SET_SELECTED_LGA", payload: e.target.value });
               }}
             >
@@ -335,19 +318,10 @@ export default function Signup() {
           />
           <label htmlFor="terms">
             I agree to the{" "}
-            {/* <Link
+           <Link
               to={route.Terms}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="terms-link"
-              onClick={(e) => e.stopPropagation()}
-            >
-              TERMS & CONDITIONS
-            </Link> */}
-            <Link
-              to={policyUrl || route.Terms}
-              target="_blank"
-              rel="noopener noreferrer"
+              // target="_blank"
+              // rel="noopener noreferrer"
               className="terms-link"
             >
               TERMS & CONDITIONS
@@ -356,6 +330,9 @@ export default function Signup() {
         </div>
 
         {submitError && <p className="submit-error">{submitError}</p>}
+
+        
+
 
         <button
           type="submit"
