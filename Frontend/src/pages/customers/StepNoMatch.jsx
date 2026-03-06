@@ -1,6 +1,9 @@
 import Button from "../../Components/buttons/Buttons";
 
 export default function StepNoMatch({ selectedLGA, onTryAgain, onClose }) {
+  // selectedLGA is now an object { id, name, stateName, stateId }
+  const lgaName = selectedLGA?.name || "your area";
+
   return (
     <div className="px-5 py-8 flex flex-col items-center gap-4">
 
@@ -23,8 +26,8 @@ export default function StepNoMatch({ selectedLGA, onTryAgain, onClose }) {
         <h3 className="text-lg font-black text-gray-900 mb-2">No Plumbers Found</h3>
         <p className="text-sm text-gray-500 leading-relaxed">
           None of our verified plumbers in{" "}
-          <span className="font-bold text-gray-800">{selectedLGA} Central</span>{" "}
-          are available at this very moment.
+          <span className="font-bold text-gray-800">{lgaName}</span>{" "}
+          are available at this moment.
         </p>
       </div>
 

@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import route from "../utils/routes";
-import LogoIcon from "../Components/icons/Logo";
 import Logo from "../assets/Logo.svg?react";
 import api from "../utils/api";
+import LayoutMark from "../assets/LayoutMark.svg?react"
 
 export default function DashboardLayout({
   children,
@@ -23,7 +23,7 @@ export default function DashboardLayout({
     try {
       await api.post("/auth/logout");
     } catch (err) {
-      // proceed with logout even if API call fails
+      // proceed with logout
     } finally {
       localStorage.removeItem("user");
       navigate(route.Login);
@@ -38,7 +38,7 @@ export default function DashboardLayout({
     const file = e.target.files[0];
     if (!file) return;
 
-    // Show preview instantly while upload happens in background
+    // Show preview 
     const previewUrl = URL.createObjectURL(file);
     setAvatar(previewUrl);
 
@@ -54,13 +54,12 @@ export default function DashboardLayout({
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Save preview URL to localStorage
+      // Save preview URL
       const updatedUser = { ...user, avatar: previewUrl };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
     } catch (err) {
       console.error("Failed to upload profile photo:", err);
-      // Preview still shows even if upload fails
     } finally {
       setUploading(false);
     }
@@ -72,33 +71,25 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       {/* ── NAVBAR ── */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-10">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 w-full">
+        <div className="w-full px-6 lg:px-12">
+          <div className="flex items-center justify-between h-[97px]">
 
             {/* LEFT */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-
-              {/* <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-4 h-4">
-                    <path d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
-                  </svg>
-                </div>
-                
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Logo />
                 <span className="text-base font-extrabold text-blue-700 tracking-tight">
                   Thrump Fix
                 </span>
-              </div> */}
-
-              <LogoIcon />
-
+              </div>
 
               {statusLabel && (
-                <span className={`hidden sm:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full border ${statusColor === "green"
+                <span className={`hidden sm:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full border ${
+                  statusColor === "green"
                     ? "border-green-300 text-green-600 bg-green-50"
                     : "border-gray-300 text-gray-500"
-                  }`}>
+                }`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${statusColor === "green" ? "bg-green-500" : "bg-gray-400"}`} />
                   {statusLabel}
                 </span>
@@ -107,8 +98,6 @@ export default function DashboardLayout({
 
             {/* RIGHT */}
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-100 pl-1.5 pr-2 sm:pr-3 py-1 rounded-full">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -117,7 +106,7 @@ export default function DashboardLayout({
                   className="hidden"
                 />
 
-                {/* Avatar — shows spinner ring*/}
+                {/* Avatar — shows spinner ring while uploading */}
                 <div
                   onClick={handleAvatarClick}
                   title="Upload profile image"
@@ -140,15 +129,15 @@ export default function DashboardLayout({
                   {firstName}
                 </span>
 
-                <span className="text-xs font-bold text-green-600 bg-green-100 px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap">
-                  ✓ <span className="hidden sm:inline">Verified</span>
+                <span className="text-xs font-bold text-green-600 px-1.5 sm:px-3 py-2 rounded-full whitespace-nowrap flex items-center gap-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+                  <LayoutMark/>
+                  <span className="hidden sm:inline">Verified</span>
                 </span>
-              </div>
 
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold text-gray-500 hover:text-red-500 border border-gray-200 hover:border-red-300 px-2.5 sm:px-3 py-1.5 rounded-full transition"
+                className="flex items-center gap-1 sm:gap-1.5 text-sm font-semibold text-gray-500 hover:text-red-500 hover:border-red-300 px-2.5 sm:px-3 py-2 rounded-full transition shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 flex-shrink-0">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
