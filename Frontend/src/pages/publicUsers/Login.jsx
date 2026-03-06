@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import AuthLayout from "../../Components/authLayout/AuthLayout";
 import Input from "../../Components/inputs/Inputs";
@@ -9,6 +9,12 @@ import api from "../../utils/api";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Only present when navigating here from PaymentPage after success
+  // Direct visits to Login will have no state — banner never shows
+  const successMessage = location.state?.message;
+
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState("");
 
@@ -34,6 +40,7 @@ export default function Login() {
       });
 
       const user = res.data;
+      console.log("LOGIN RESPONSE:", JSON.stringify(res.data));
       localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === "PLUMBER") {
@@ -44,10 +51,25 @@ export default function Login() {
 
     } catch (error) {
       console.error("Login error:", error);
-      const message =
-        error.response?.data?.message ||
-        error.response?.data ||
-        "Invalid email or password. Please try again.";
+      console.log("status:", error.response?.status);
+      console.log("data:", JSON.stringify(error.response?.data));
+      console.log("has response:", !!error.response);
+      const status = error.response?.status;
+      const serverMessage = error.response?.data?.message ||
+        (typeof error.response?.data === "string" ? error.response.data : null);
+
+      let message;
+      if (serverMessage) {
+        message = serverMessage;
+      } else if (status === 401 || status === 403) {
+        message = "Incorrect email or password. Please try again.";
+      } else if (status === 404) {
+        message = "No account found with this email address.";
+      } else if (!error.response) {
+        message = "Cannot connect to server. Please check your connection.";
+      } else {
+        message = "Something went wrong. Please try again.";
+      }
       setAuthError(message);
     } finally {
       setLoading(false);
@@ -57,6 +79,13 @@ export default function Login() {
   return (
     <AuthLayout className="authLogin" title="Login">
       <form onSubmit={handleSubmit(onSubmit)}>
+
+        {/* Shows ONLY after coming from payment — invisible on direct visits */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-700 text-[12px] font-medium px-4 py-3 rounded-xl mb-4 text-center">
+            {successMessage}
+          </div>
+        )}
 
         {authError && (
           <p className="auth-error">{authError}</p>
