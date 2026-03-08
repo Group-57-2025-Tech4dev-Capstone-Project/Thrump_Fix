@@ -11,8 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Only present when navigating here from PaymentPage after success
-  // Direct visits to Login will have no state — banner never shows
+  // PaymentPage after success
   const successMessage = location.state?.message;
 
   const [loading, setLoading] = useState(false);
@@ -50,13 +49,11 @@ export default function Login() {
       }
 
     } catch (error) {
-      console.error("Login error:", error);
-      console.log("status:", error.response?.status);
-      console.log("data:", JSON.stringify(error.response?.data));
-      console.log("has response:", !!error.response);
+      const data = error.response?.data;
       const status = error.response?.status;
-      const serverMessage = error.response?.data?.message ||
-        (typeof error.response?.data === "string" ? error.response.data : null);
+
+      // handle both object and string responses
+      const serverMessage = typeof data === "object" ? data?.message : data;
 
       let message;
       if (serverMessage) {
@@ -70,6 +67,7 @@ export default function Login() {
       } else {
         message = "Something went wrong. Please try again.";
       }
+
       setAuthError(message);
     } finally {
       setLoading(false);
@@ -80,7 +78,7 @@ export default function Login() {
     <AuthLayout className="authLogin" title="Login">
       <form onSubmit={handleSubmit(onSubmit)}>
 
-        {/* Shows ONLY after coming from payment — invisible on direct visits */}
+        {/* Shows ONLY after coming from payment*/}
         {successMessage && (
           <div className="bg-green-50 border border-green-200 text-green-700 text-[12px] font-medium px-4 py-3 rounded-xl mb-4 text-center">
             {successMessage}
@@ -126,3 +124,6 @@ export default function Login() {
     </AuthLayout>
   );
 }
+
+
+

@@ -72,7 +72,10 @@ export default function Signup() {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm({ shouldUnregister: true, mode: "onChange" });
+  } = useForm({ shouldUnregister: true, 
+    mode: "onChange",
+    defaultValues: { stateId: "" }
+   });
 
   const isReady = isValid && agreed && !!idFile;
 
@@ -230,24 +233,38 @@ export default function Signup() {
           <label>State</label>
           <div className="select-wrapper">
             <select
+            
               {...register("stateId", { required: "State is required" })}
               onChange={(e) => {
                 register("stateId").onChange(e);
                 dispatch({ type: "SET_SELECTED_STATE", payload: e.target.value });
               }}
             >
-              <option value="">Select State</option>
-              {states.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}          
+              <option value="" disabled>State</option>
+              {states
+                .slice()
+                .sort((a, b) => a.name === "Lagos" ? -1 : b.name === "Lagos" ? 1 : 0)
+                .map((s) => {
+                  const isLagos = s.name === "Lagos";
+                  return (
+                    <option
+                      key={s.id}
+                      value={s.id}
+                      disabled={!isLagos}
+                      style={{ color: isLagos ? "inherit" : "#aaa" }}
+                    >
+                      {isLagos ? s.name : `${s.name} (Coming Soon)`}
+                    </option>
+                  );
+                })}
             </select>
             <span className="select-arrow">
-                <ArrowdownSignup/>
+              <ArrowdownSignup />
             </span>
           </div>
-            
           {errors.stateId && <p className="errorText">{errors.stateId.message}</p>}
         </div>
+
 
         <div className="input-field">
           <label>Local Government Area (LGA)</label>
