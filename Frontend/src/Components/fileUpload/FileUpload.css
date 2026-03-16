@@ -16,9 +16,9 @@
 
 /* Empty upload box */
 .file-upload-box {
-  border: 2px dashed #a8c4e8;
+  border: 2px solid #CBD5E1;
   border-radius: 14px;
-  background: #f0f6ff;
+  background: #F1F5F9;
   padding: 32px 16px;
   display: flex;
   flex-direction: column;
@@ -36,8 +36,8 @@
 }
 
 .file-upload-box span {
-  font-size: 13px;
-  color: #4f7dbd;
+  font-size: 14px;
+  color: #45556C;
   font-weight: 500;
 }
 

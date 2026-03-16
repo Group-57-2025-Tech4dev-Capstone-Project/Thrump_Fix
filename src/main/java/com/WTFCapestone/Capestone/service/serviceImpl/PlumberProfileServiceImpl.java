@@ -1,9 +1,11 @@
 package com.WTFCapestone.Capestone.service.serviceImpl;
 
+import com.WTFCapestone.Capestone.dto.response.AssignedJobResponse;
 import com.WTFCapestone.Capestone.dto.response.UserResponse;
 import com.WTFCapestone.Capestone.entity.*;
 import com.WTFCapestone.Capestone.exception.AuthorizationException;
 import com.WTFCapestone.Capestone.exception.BadRequestException;
+import com.WTFCapestone.Capestone.repository.JobRepository;
 import com.WTFCapestone.Capestone.service.PlumberProfileService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,10 @@ public class PlumberProfileServiceImpl implements PlumberProfileService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JobRepository jobRepository; // ✅ ADDED
+
 
     /**
      * ✅ Create profile ONLY for plumbers
@@ -222,4 +228,43 @@ public class PlumberProfileServiceImpl implements PlumberProfileService {
                 .map(this::map)
                 .toList();
     }
+
+    // =========================================================
+// ASSIGNED JOBS
+// =========================================================
+
+// 🔴 MODIFIED: Return full job history for the logged-in plumber
+// This includes ALL jobs the plumber accepted in the past,
+
+    @Override
+    public List<AssignedJobResponse> assignedJobs() {
+
+        // Step 1: Get logged-in user
+        User user = currentUser();
+
+        // Step 2: Ensure the logged-in user is a plumber
+        if (user.getRole() != Role.PLUMBER) {
+            throw new AuthorizationException("Only plumbers can view assigned jobs");
+        }
+
+        // Step 3: Fetch plumber profile
+        PlumberProfile plumber = plumberProfileRepository
+                .findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Plumber profile not found"));
+
+        // Step 4: Fetch ALL jobs where this plumber was assigned
+        List<Job> jobs = jobRepository.findByPlumberId(plumber.getId());
+
+        // Step 5: Map jobs to AssignedJobResponse DTO
+        return jobs.stream()
+                .map(job -> new AssignedJobResponse(
+                        job.getId(),
+                        job.getIssueDetails(),
+                        job.getSubRegion().getId(),
+                        job.getStatus(),
+                        job.getAcceptedAt()
+                ))
+                .toList();
+    }
+
 }

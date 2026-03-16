@@ -66,6 +66,23 @@ public class PrivacyAndPolicyServiceImpl implements PrivacyAndPolicyService {
         }
     }
 
+    /**
+     * ✅ NEW SERVICE METHOD
+     * Used by controller to fetch document
+     */
+    @Override
+    public StoredFile getPolicyDocument(Long policyId) {
+
+        PrivacyAndPolicy policy = policyRepository.findById(policyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Policy not found"));
+
+        if (policy.getDocumentFile() == null) {
+            throw new ResourceNotFoundException("Policy document not found");
+        }
+
+        return policy.getDocumentFile();
+    }
+
     @Override
     public List<PrivacyAndPolicyResponse> getAllPolicies() {
         return policyRepository.findAll()

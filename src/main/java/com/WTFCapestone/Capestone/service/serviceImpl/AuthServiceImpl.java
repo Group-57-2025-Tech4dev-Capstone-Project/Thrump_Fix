@@ -58,6 +58,10 @@ public class AuthServiceImpl implements AuthService {
   @Autowired
   private RefreshTokenService refreshTokenService;
 
+    // 🔒 ACCOUNT LOCK CONFIGURATION
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final long LOCK_DURATION_MINUTES = 10;
+
 
     @Override
     public AuthResponse register(UserRegisterRequest request) {
@@ -143,9 +147,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // ✅ 7. CREATE USER
+        // ✅ 7. CREATE USER
         User user = User.builder()
                 .fullName(request.getFullName())
-                .email(request.getEmail().toLowerCase()) // 🔴 CHANGED: normalize email
+                .email(request.getEmail().toLowerCase())
                 .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
@@ -158,7 +163,14 @@ public class AuthServiceImpl implements AuthService {
                 .acceptedPrivacyAndPolicyAt(LocalDateTime.now())
                 .onlineStatus(OnlineStatus.OFFLINE)
                 .enabled(true)
+
+                // 🔐 NEW — account security defaults
+                .accountLocked(false)          // 🔴 ADDED
+                .failedLoginAttempts(0)        // 🔴 ADDED
+                .lockTime(null)                // 🔴 ADDED
+
                 .build();
+
 
         userRepository.save(user);
 
@@ -198,41 +210,49 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-
-     private  static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
+    private  static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
     public AuthResponse login(LoginRequest request) {
 
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
+
+        // 🔒 CHECK ACCOUNT LOCK STATUS
+        checkAccountLock(user);
+
         try {
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()
                     )
             );
+
         } catch (BadCredentialsException e) {
+
+            // 🔒 INCREASE FAILED ATTEMPTS
+            increaseFailedAttempts(user);
 
             try { Thread.sleep(800); } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
 
-            log.warn("Failed login attempt for email: {}", request.getEmail());
+//            log.warn("Failed login attempt for email: {}", request.getEmail());
 
             throw new AuthenticationException("Invalid email or password");
         }
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
+        // 🔓 RESET ATTEMPTS ON SUCCESS
+        resetFailedAttempts(user);
 
         // ✅ SET USER ONLINE
         user.setOnlineStatus(OnlineStatus.ONLINE);
         userRepository.save(user);
 
-        // 🔐 generate access token
         String token = jwtUtil.generateToken(user);
 
-// 🔐 create refresh token
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(user.getId());
 
@@ -244,7 +264,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getVerificationStatus(),
                 user.getOnlineStatus(),
                 token,
-                refreshToken.getToken(),  // ✅ NEW
+                refreshToken.getToken(),
                 true
         );
     }
@@ -285,6 +305,7 @@ public class AuthServiceImpl implements AuthService {
      * JWT is stateless → server does NOT store sessions.
      */
 
+
     @Override
     public void logout(String token) {
 
@@ -296,17 +317,110 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthenticationException("Invalid token");
         }
 
-        String email = jwtUtil.extractUsername(token);
+        // 🔴 CHANGED: extract userId instead of email
+        Long userId = jwtUtil.extractUserId(token);
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthenticationException("User not found"));
 
-        // ✅ SET USER OFFLINE
+        // SET USER OFFLINE
         user.setOnlineStatus(OnlineStatus.OFFLINE);
         userRepository.save(user);
 
         // optional blacklist
         blacklistService.blacklistToken(token);
+    }
+
+
+    // 🔒 CHECK IF ACCOUNT IS LOCKED
+
+    private void checkAccountLock(User user) {
+
+        if (!user.isAccountLocked()) return;
+
+        LocalDateTime unlockTime =
+                user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES);
+
+        if (unlockTime.isBefore(LocalDateTime.now())) {
+
+            user.setAccountLocked(false);
+            user.setFailedLoginAttempts(0);
+            user.setLockTime(null);
+
+            userRepository.save(user);
+
+        } else {
+
+            long minutesLeft =
+                    java.time.Duration.between(LocalDateTime.now(), unlockTime)
+                            .toMinutes();
+
+            throw new AuthenticationException(
+                    "Account locked. Try again in " + minutesLeft + " minutes."
+            );
+        }
+    }
+
+
+
+
+//    private void checkAccountLock(User user) {
+//
+//        if (!user.isAccountLocked()) {
+//            return;
+//        }
+//
+//        LocalDateTime unlockTime =
+//                user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES);
+//
+//        if (unlockTime.isBefore(LocalDateTime.now())) {
+//
+//            // 🔓 unlock account
+//            user.setAccountLocked(false);
+//            user.setFailedLoginAttempts(0);
+//            user.setLockTime(null);
+//
+//            userRepository.save(user);
+//
+//        } else {
+//
+//            throw new AuthenticationException(
+//                    "Account locked due to multiple failed logins. Try again later."
+//            );
+//        }
+//    }
+
+
+    // 🔒 INCREASE FAILED ATTEMPTS
+    private void increaseFailedAttempts(User user) {
+
+        int attempts = user.getFailedLoginAttempts() + 1;
+
+        user.setFailedLoginAttempts(attempts);
+
+        if (attempts >= MAX_FAILED_ATTEMPTS) {
+
+            user.setAccountLocked(true);
+            user.setLockTime(LocalDateTime.now());
+
+            log.warn("User account locked: {}", user.getEmail());
+        }
+
+        userRepository.save(user);
+    }
+
+
+    // 🔓 RESET FAILED ATTEMPTS AFTER SUCCESSFUL LOGIN
+    private void resetFailedAttempts(User user) {
+
+        if (user.getFailedLoginAttempts() > 0) {
+
+            user.setFailedLoginAttempts(0);
+            user.setAccountLocked(false);
+            user.setLockTime(null);
+
+            userRepository.save(user);
+        }
     }
 
 }

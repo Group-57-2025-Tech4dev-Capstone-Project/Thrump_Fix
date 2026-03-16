@@ -19,7 +19,7 @@ public class SubRegion {
     private String name;
 
     /* CHANGE: optional=false */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "localGovernanceArea_id")
     private LocalGovernanceArea localGovernanceArea;
 }

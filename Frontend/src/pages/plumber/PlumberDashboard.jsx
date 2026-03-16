@@ -1,19 +1,29 @@
+//Frontend/src/pages/plumber/PlumberDashboard
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import LogoIcon from "../../Components/icons/Logo";
+import api from "../../utils/api";
 
-// ─── Inline DashboardLayout (self-contained) ───────────────────────────────
+// ─── Inline DashboardLayout ────────────────────────────────────────────────
 function DashboardLayout({ children, statusLabel, statusColor, header }) {
   const navigate = useNavigate();
   const fileInputRef = useRef();
 
-  const storedUser = localStorage.getItem("user");
+//   const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [avatar, setAvatar] = useState(user?.avatar || null);
 
-  function handleLogout() {
-    localStorage.removeItem("user");
-    navigate("/login");
+  async function handleLogout() {
+    try {
+      await api.post("/auth/logout");
+    } catch (err) {
+      // still clear locally even if request fails
+    } finally {
+//       localStorage.removeItem("user");
+      sessionStorage.clear();
+      navigate(route.Login);
+    }
   }
 
   function handleAvatarClick() {
@@ -26,10 +36,11 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
     const imageUrl = URL.createObjectURL(file);
     setAvatar(imageUrl);
     const updatedUser = { ...user, avatar: imageUrl };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+//     localStorage.setItem("user", JSON.stringify(updatedUser));
+    sessionStorage.setItem("user", JSON.stringify(updatedUser));
   }
 
-  const firstName = user?.fullName?.split(" ")[0] || "Musa";
+  const firstName = user?.fullName?.split(" ")[0] || "User";
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -39,17 +50,7 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* LEFT */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              {/* <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-4 h-4">
-                    <path d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
-                  </svg>
-                </div>
-                <span className="text-base font-extrabold text-blue-700 tracking-tight">PlumbConnect</span>
-              </div> */}
-
               <LogoIcon />
-
               {statusLabel && (
                 <span className={`hidden sm:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full border ${
                   statusColor === "green"
@@ -118,13 +119,9 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
 function ScanningRadar() {
   return (
     <div className="relative flex items-center justify-center w-24 h-24 mx-auto">
-      {/* Outer pulse rings */}
       <span className="absolute w-24 h-24 rounded-full border-2 border-blue-200 animate-ping opacity-30" />
       <span className="absolute w-16 h-16 rounded-full border-2 border-blue-300 animate-ping opacity-40" style={{ animationDelay: "0.3s" }} />
-
-      {/* Circle bg */}
       <div className="w-20 h-20 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shadow-inner relative overflow-hidden">
-        {/* Rotating sweep */}
         <div
           className="absolute inset-0 rounded-full"
           style={{
@@ -132,7 +129,6 @@ function ScanningRadar() {
             animation: "spin 2s linear infinite",
           }}
         />
-        {/* Clock/radar icon */}
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-400 relative z-10">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -142,7 +138,7 @@ function ScanningRadar() {
 }
 
 // ─── Marketplace Feed Panel ────────────────────────────────────────────────
-function MarketplaceFeed({ leads, scanning }) {
+function MarketplaceFeed({ leads, scanning, onClaim, claimingId }) {
   if (scanning || leads.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 sm:py-24 gap-6">
@@ -162,17 +158,25 @@ function MarketplaceFeed({ leads, scanning }) {
   return (
     <div className="space-y-3">
       {leads.map((lead) => (
-        <div key={lead.id} className="bg-white border border-gray-200 rounded-xl p-4 flex items-start justify-between gap-4 hover:shadow-md hover:border-blue-200 transition-all">
+        <div key={lead.jobId} className="bg-white border border-gray-200 rounded-xl p-4 flex items-start justify-between gap-4 hover:shadow-md hover:border-blue-200 transition-all">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold uppercase tracking-wide text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">{lead.type}</span>
-              <span className="text-xs text-gray-400">{lead.time}</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                Plumbing
+              </span>
+              <span className="text-xs text-gray-400">
+                {lead.createdAt ? new Date(lead.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+              </span>
             </div>
-            <p className="text-sm font-semibold text-gray-800 truncate">{lead.title}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{lead.location}</p>
+            <p className="text-sm font-semibold text-gray-800 truncate">{lead.issueDetails}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{lead.address}</p>
           </div>
-          <button className="flex-shrink-0 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition">
-            Claim
+          <button
+            onClick={() => onClaim(lead.jobId)}
+            disabled={claimingId === lead.jobId}
+            className="flex-shrink-0 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 px-3 py-1.5 rounded-lg transition"
+          >
+            {claimingId === lead.jobId ? "Claiming..." : "Claim"}
           </button>
         </div>
       ))}
@@ -180,25 +184,99 @@ function MarketplaceFeed({ leads, scanning }) {
   );
 }
 
-// ─── Main Plumber Dashboard Page ──────────────────────────────────────────
+// ─── Main Plumber Dashboard ────────────────────────────────────────────────
 export default function PlumberDashboard() {
-  const [scanning, setScanning] = useState(true);
+  const [scanning, setScanning]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [leads] = useState([]);
+  const [leads, setLeads]           = useState([]);
+  const [plumber, setPlumber]       = useState(null);
+  const [claimingId, setClaimingId] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Simulate scanning state — stays scanning per the design
-  function handleRefresh() {
-    setRefreshing(true);
-    setScanning(true);
-    setTimeout(() => setRefreshing(false), 1500);
+//   const storedUser  = localStorage.getItem("user");
+  const storedUser  = sessionStorage.getItem("user");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const userId      = currentUser?.id || currentUser?.userId;
+
+  // ── 1. Fetch plumber profile (for region label + plumberId) ──
+  useEffect(() => {
+    if (!userId) return;
+    const fetchPlumber = async () => {
+      try {
+        const res = await api.get(`/plumbers/${userId}`);
+        setPlumber(res.data);
+      } catch (err) {
+        console.error("Failed to fetch plumber profile:", err);
+      }
+    };
+    fetchPlumber();
+  }, [userId]);
+
+  // ── 2. Fetch available jobs ──────────────────────────────────
+  const fetchLeads = async () => {
+    try {
+      const res = await api.get("/jobs/available");
+      const jobs = res.data || [];
+      setLeads(jobs);
+      setScanning(jobs.length === 0); // show radar only if no jobs
+    } catch (err) {
+      console.error("Failed to fetch available jobs:", err);
+      setScanning(true);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeads();
+    const interval = setInterval(fetchLeads, 5000); // poll every 5s
+    return () => clearInterval(interval);
+  }, []);
+
+  // ── 3. Claim (accept) a job ──────────────────────────────────
+//   async function handleClaim(jobId) {
+//     if (!userId) return;
+//     setClaimingId(jobId);
+//     try {
+//       await api.patch(`/jobs/${jobId}/accept?plumberId=${userId}`);
+//       // remove claimed job from the list immediately
+//       setLeads((prev) => prev.filter((j) => j.jobId !== jobId));
+//     } catch (err) {
+//       console.error("Failed to claim job:", err);
+//       alert(err.response?.data?.message || "Could not claim job. Please try again.");
+//     } finally {
+//       setClaimingId(null);
+//     }
+//   }
+
+  async function handleClaim(jobId) {
+    if (!userId) return;
+    setClaimingId(jobId);
+    try {
+      await api.patch(`/jobs/${jobId}/accept`);
+      // remove claimed job from the list immediately
+      setLeads((prev) => prev.filter((j) => j.jobId !== jobId));
+    } catch (err) {
+      console.error("Failed to claim job:", err);
+      alert(err.response?.data?.message || "Could not claim job. Please try again.");
+    } finally {
+      setClaimingId(null);
+    }
   }
 
+  // ── 4. Refresh button ────────────────────────────────────────
+  async function handleRefresh() {
+    setRefreshing(true);
+    await fetchLeads();
+    setRefreshing(false);
+  }
+
+  const regionLabel = plumber
+    ? `${plumber.localGovernanceArea || ""}, ${plumber.subRegion || ""}`.trim().replace(/^,|,$/, "")
+    : "Your Region";
+
   return (
-    <DashboardLayout
-      statusLabel="Active Online"
-      statusColor="green"
-    >
-      {/* ── Marketplace Opportunities Section ── */}
+    <DashboardLayout statusLabel="Active Online" statusColor="green">
+
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
 
         {/* Section header */}
@@ -211,7 +289,7 @@ export default function PlumberDashboard() {
               </h2>
             </div>
             <p className="text-[11px] uppercase tracking-widest text-gray-400 font-medium pl-4">
-              Regional Feed: Ikeja, Ojodu
+              Regional Feed: {regionLabel}
             </p>
           </div>
 
@@ -236,11 +314,15 @@ export default function PlumberDashboard() {
 
         {/* Feed content */}
         <div className="px-5 sm:px-6">
-          <MarketplaceFeed leads={leads} scanning={scanning} />
+          <MarketplaceFeed
+            leads={leads}
+            scanning={scanning}
+            onClaim={handleClaim}
+            claimingId={claimingId}
+          />
         </div>
       </div>
 
-      {/* ── Spin keyframe via inline style ── */}
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }

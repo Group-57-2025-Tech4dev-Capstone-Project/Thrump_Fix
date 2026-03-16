@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.controller;
 
 import com.WTFCapestone.Capestone.dto.request.CreateJobRequest;
+import com.WTFCapestone.Capestone.dto.response.AcceptedPlumberResponse;
 import com.WTFCapestone.Capestone.dto.response.AvailableJobResponse;
 import com.WTFCapestone.Capestone.dto.response.CreateJobResponse;
 import com.WTFCapestone.Capestone.dto.response.JobHistoryResponse;
@@ -33,13 +34,11 @@ public class JobController {
     // ACCEPT JOB (PLUMBER)
     // ===============================
     @PatchMapping("/{jobId}/accept")
-    public ResponseEntity<String> acceptJob(
-            @PathVariable Long jobId,
-            @RequestParam Long plumberId) {
-
-        jobService.acceptJob(jobId, plumberId);
-        return ResponseEntity.ok("Job accepted successfully");
+    public ResponseEntity<?> acceptJob(@PathVariable Long jobId) {
+        AcceptedPlumberResponse response = jobService.acceptJob(jobId);
+        return ResponseEntity.ok(response);
     }
+
 
     // ===============================
     // CANCEL JOB (CUSTOMER ONLY)
@@ -47,7 +46,6 @@ public class JobController {
     @PatchMapping("/{jobId}/cancel")
     public ResponseEntity<CreateJobResponse> cancelJob(
             @PathVariable Long jobId) {
-
         return ResponseEntity.ok(jobService.terminateJobRequest(jobId));
     }
 

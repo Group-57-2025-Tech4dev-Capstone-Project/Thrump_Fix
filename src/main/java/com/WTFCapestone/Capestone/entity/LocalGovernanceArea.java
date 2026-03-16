@@ -20,11 +20,11 @@ public class LocalGovernanceArea {
     private String name;
 
     /* CHANGE: LAZY for performance */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "state_id", nullable = false)
     private State state;
 
-    @OneToMany(mappedBy = "localGovernanceArea", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "localGovernanceArea")
     private Set<SubRegion> subRegions;
 
 }

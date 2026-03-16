@@ -1,3 +1,5 @@
+
+
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import route from "../../utils/routes";
@@ -19,7 +21,7 @@ const proFeatures = [
 export default function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from; // "dashboard" or undefined
+  const from = location.state?.from;
 
   const [isBusiness, setIsBusiness] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,10 +32,11 @@ export default function PaymentPage() {
     setLoading(true);
     setError("");
     try {
-      await api.post("/subscription/start");
-      // Both flows go to Login — fresh login fetches updated subscription status
-      // so the orange banner is gone when they come back
-      navigate(route.Login);
+      await api.post("/subscription/start", { plan: "THRUMPFIX_PRO" });
+      // only shows when coming from payment
+      navigate(route.Login, {
+        state: { message: "🎉 Subscription activated! Please log in to continue." }
+      });
     } catch (err) {
       setError(err.response?.data?.message || "Payment failed. Please try again.");
     } finally {
@@ -169,7 +172,6 @@ export default function PaymentPage() {
               boxShadow: "0px 8px 10px -6px #E2E8F080, 0px 20px 25px -5px #E2E8F080",
             }}
           >
-            {/* Header */}
             <div className="flex items-start justify-between mb-5 gap-3">
               <h3 className="text-[19px] font-bold text-gray-900 leading-tight">Thrump Fix Pro</h3>
               <span className="bg-blue-600 text-white text-[9px] font-bold tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
@@ -210,7 +212,6 @@ export default function PaymentPage() {
               <span>₦5,000</span>
             </div>
 
-            {/* Error message */}
             {error && (
               <p className="text-[12px] text-red-500 text-center mb-3">{error}</p>
             )}

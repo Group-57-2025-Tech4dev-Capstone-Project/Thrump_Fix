@@ -16,7 +16,7 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private User customer;
 
@@ -24,15 +24,15 @@ public class Job {
     @JoinColumn(name = "plumber_id")
     private PlumberProfile plumber;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "state_id")
     private State state;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "local_governance_area_id")
     private LocalGovernanceArea localGovernanceArea;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "subregion_id")
     private SubRegion subRegion;
 
@@ -50,13 +50,8 @@ public class Job {
 
     private Integer etaMinutes; //createdAt = now ,expiresAt = now + 2 minutes(make it 5seconds)
 
-//    private String countDown;
-//    Timer;
-//when the customer sends a job there should be a time counting down until they(customer) get connected to a plumber.
-//    if no plumber found the job status should be updated to Rejected and be added to jon history.
-//    then the customer can reload job again, until it gets accepted or the customer cancells the request.
-//    how to add timerin this class/application
     private LocalDateTime createdAt;
+
     /* Automatically populate timestamps */
     @PrePersist
     void onCreate() {
@@ -67,6 +62,7 @@ public class Job {
     private LocalDateTime matchedAt;
     private LocalDateTime acceptedAt;
     private LocalDateTime completedAt;
+    private LocalDateTime rejectedAt;
     private LocalDateTime cancelledAt;
     
 }

@@ -2,6 +2,7 @@ package com.WTFCapestone.Capestone.service;
 
 import com.WTFCapestone.Capestone.dto.request.PrivacyAndPolicyRequest;
 import com.WTFCapestone.Capestone.dto.response.PrivacyAndPolicyResponse;
+import com.WTFCapestone.Capestone.entity.StoredFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -13,6 +14,8 @@ public interface PrivacyAndPolicyService {
     List<PrivacyAndPolicyResponse> getAllPolicies();
 
     PrivacyAndPolicyResponse getLatestPolicy();
+
+    StoredFile getPolicyDocument(Long policyId);
 
     void deletePolicy(Long id);
 }

@@ -1,3 +1,4 @@
+//Frontend/src/pages/plumber/Dashboard.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,13 +7,15 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
   const navigate = useNavigate();
   const fileInputRef = useRef();
 
-  const storedUser = localStorage.getItem("user");
+//   const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [avatar, setAvatar] = useState(user?.avatar || null);
 
   function handleLogout() {
-    localStorage.removeItem("user");
-    navigate("/login");
+//     localStorage.removeItem("user");
+    sessionStorage.clear();
+    navigate(route.Login);
   }
 
   function handleAvatarClick() {
@@ -25,7 +28,8 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
     const imageUrl = URL.createObjectURL(file);
     setAvatar(imageUrl);
     const updatedUser = { ...user, avatar: imageUrl };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+//     localStorage.setItem("user", JSON.stringify(updatedUser));
+    sessionStorage.setItem("user", JSON.stringify(updatedUser));
   }
 
   const firstName = user?.fullName?.split(" ")[0] || "Musa";
@@ -247,10 +251,3 @@ export default function PlumberDashboard() {
     </DashboardLayout>
   );
 }
-
-assets
-components
-layouts
-pages
-routes
-utils

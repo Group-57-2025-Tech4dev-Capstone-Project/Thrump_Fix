@@ -149,8 +149,32 @@ public class UserServiceImpl implements UserService{
         userRepository.delete(user);
     }
 
-    // ✅ CHANGE: Rewrote mapper to use setters instead of constructor
-    // ✅ CHANGE: Rewrote mapper to use setters instead of constructor
+    // =========================================================
+    // 🔐 EMAIL MASKING UTILITY
+    // =========================================================
+    // 🔴 ADDED: Utility method to mask email before sending to client
+    private String maskEmail(String email) {
+
+        if (email == null || !email.contains("@")) {
+            return email;
+        }
+
+        String[] parts = email.split("@");
+        String name = parts[0];
+        String domain = parts[1];
+
+        if (name.length() <= 2) {
+            return name.charAt(0) + "***@" + domain;
+        }
+
+        String visible = name.substring(0, 2);
+        return visible + "***@" + domain;
+    }
+
+    // =========================================================
+    // USER MAPPER
+    // =========================================================
+
     UserResponse map(User user) {
 
         UserResponse response = new UserResponse();
@@ -158,7 +182,10 @@ public class UserServiceImpl implements UserService{
         response.setId(user.getId());
         response.setFullName(user.getFullName());
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setEmail(user.getEmail());
+
+        // 🔴 CHANGED: Mask email before returning it to frontend
+        response.setEmail(maskEmail(user.getEmail()));
+
         response.setRole(user.getRole());
 
         // location mapping
@@ -169,7 +196,7 @@ public class UserServiceImpl implements UserService{
         // verification status
         response.setVerificationStatus(user.getVerificationStatus().name());
 
-        // 🔴 CHANGED: safe mapping for stored file
+        // safe mapping for stored file
         if (user.getProfilePhotoFile() != null) {
             response.setProfilePhotoFileId(user.getProfilePhotoFile().getId());
             response.setProfilePhotoFileName(user.getProfilePhotoFile().getFileName());
@@ -181,4 +208,40 @@ public class UserServiceImpl implements UserService{
 
         return response;
     }
+
+//    log.info("JWT subject: {}", jwtUtil.extractUsername("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXNoaXJpY0BleGFtcGxlLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlkIjo5LCJpc3MiOiJDYXBlc3RvbmVBdXRoU2VydmljZSIsImlhdCI6MTc3MjgyMTMzNiwiZXhwIjoxNzcyODI0OTM2fQ.olu6EkeRQRbUpeHwBWEHBmzzUv4JlA1F9qUWW2yLoPBVUVQLFWUPBE8gDT1SmvAGdLw253stctGqqCKJO4SRIQ"));
+
+
+//    // ✅ CHANGE: Rewrote mapper to use setters instead of constructor
+//    // ✅ CHANGE: Rewrote mapper to use setters instead of constructor
+//    UserResponse map(User user) {
+//
+//        UserResponse response = new UserResponse();
+//
+//        response.setId(user.getId());
+//        response.setFullName(user.getFullName());
+//        response.setPhoneNumber(user.getPhoneNumber());
+//        response.setEmail(user.getEmail());
+//        response.setRole(user.getRole());
+//
+//        // location mapping
+//        response.setState(user.getState().getName());
+//        response.setLocalGovernanceArea(user.getLocalGovernanceArea().getName());
+//        response.setSubRegion(user.getSubRegion().getName());
+//
+//        // verification status
+//        response.setVerificationStatus(user.getVerificationStatus().name());
+//
+//        // 🔴 CHANGED: safe mapping for stored file
+//        if (user.getProfilePhotoFile() != null) {
+//            response.setProfilePhotoFileId(user.getProfilePhotoFile().getId());
+//            response.setProfilePhotoFileName(user.getProfilePhotoFile().getFileName());
+//        }
+//
+//        response.setOnlineStatus(user.getOnlineStatus());
+//        response.setCreatedAt(user.getCreatedAt());
+//        response.setEnabled(user.getEnabled());
+//
+//        return response;
+//    }
 }

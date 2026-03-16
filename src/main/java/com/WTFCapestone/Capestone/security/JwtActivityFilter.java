@@ -34,9 +34,11 @@ public class JwtActivityFilter extends OncePerRequestFilter {
 
             if (!jwtUtil.isTokenValid(token)) {
 
-                String email = jwtUtil.extractUsername(token);
+//                String email = jwtUtil.extractUsername(token);
+                // 🔴 CHANGED: Extract USER ID instead of email
+                Long userId = jwtUtil.extractUserId(token);
 
-                userRepository.findByEmail(email).ifPresent(user -> {
+                userRepository.findById(userId).ifPresent(user -> {
                     user.setOnlineStatus(OnlineStatus.OFFLINE);
                     userRepository.save(user);
                 });

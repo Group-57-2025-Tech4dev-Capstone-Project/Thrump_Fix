@@ -4,21 +4,65 @@ import com.WTFCapestone.Capestone.entity.User;
 import com.WTFCapestone.Capestone.repository.UserRepository;
 import com.WTFCapestone.Capestone.security.CustomUserDetails;
 import com.WTFCapestone.Capestone.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+//@RequiredArgsConstructor
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
 
+    // 🔴 CHANGED: constructor injection (recommended)
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    // 🔴 REQUIRED by Spring Security UserDetailsService
     @Override
-    public UserDetails loadUserByUsername(String email) {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found with email: " + email)
+                );
 
         return new CustomUserDetails(user);
     }
 }
+
+
+
+
+
+
+
+
+
+//package com.WTFCapestone.Capestone.service.serviceImpl;
+//
+//import com.WTFCapestone.Capestone.entity.User;
+//import com.WTFCapestone.Capestone.repository.UserRepository;
+//import com.WTFCapestone.Capestone.security.CustomUserDetails;
+//import com.WTFCapestone.Capestone.service.CustomUserDetailsService;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.userdetails.UsernameNotFoundException;
+//import org.springframework.stereotype.Service;
+//
+//@Service
+//public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
+//    @Autowired
+//    private UserRepository userRepository;
+//
+////
+////    @Override
+////    public UserDetails loadUserByUsername(String email) {
+////        User user = userRepository.findByEmail(email)
+////                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+////
+////        return new CustomUserDetails(user);
+////    }
+//}

@@ -25,7 +25,7 @@ public class PrivacyAndPolicy {
     private LocalDateTime effectiveDate;
 
     /* link stored document */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "document_file_id")
     private StoredFile documentFile;
 

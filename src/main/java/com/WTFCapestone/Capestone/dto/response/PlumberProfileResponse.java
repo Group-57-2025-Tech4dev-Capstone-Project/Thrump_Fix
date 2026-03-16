@@ -30,5 +30,4 @@ public class PlumberProfileResponse {
 
     private boolean verified;
 
-
 }

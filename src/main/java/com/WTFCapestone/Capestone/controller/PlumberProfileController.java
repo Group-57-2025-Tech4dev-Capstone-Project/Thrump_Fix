@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.controller;
 
 import com.WTFCapestone.Capestone.dto.request.PlumberProfileRequest;
+import com.WTFCapestone.Capestone.dto.response.AssignedJobResponse;
 import com.WTFCapestone.Capestone.dto.response.PlumberProfileResponse;
 import com.WTFCapestone.Capestone.entity.AvailabilityStatus;
 import com.WTFCapestone.Capestone.service.PlumberProfileService;
@@ -52,6 +53,11 @@ public class PlumberProfileController {
     @GetMapping("/all")
     public ResponseEntity<List<PlumberProfileResponse>> getAllPlumbers() {
         return ResponseEntity.ok(plumberService.getAllPlumbers());
+    }
+
+    @GetMapping("/assigned-Jobs")
+    public ResponseEntity<List<AssignedJobResponse>> getAssignedJobs(){
+        return ResponseEntity.ok(plumberService.assignedJobs());
     }
 
     // ✅ Get plumbers by state

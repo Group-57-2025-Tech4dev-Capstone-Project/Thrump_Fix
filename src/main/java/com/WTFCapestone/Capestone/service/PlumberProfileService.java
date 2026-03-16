@@ -1,6 +1,7 @@
 package com.WTFCapestone.Capestone.service;
 
 import com.WTFCapestone.Capestone.dto.request.PlumberProfileRequest;
+import com.WTFCapestone.Capestone.dto.response.AssignedJobResponse;
 import com.WTFCapestone.Capestone.dto.response.PlumberProfileResponse;
 import com.WTFCapestone.Capestone.entity.AvailabilityStatus;
 
@@ -21,6 +22,8 @@ public interface PlumberProfileService {
     List<PlumberProfileResponse> findByPlumberName(String name);
 
     void deleteProfile(Long userId);
+
+    List<AssignedJobResponse> assignedJobs();
 
     // ✅ CHANGE: added userId
     PlumberProfileResponse getPlumberAvailabilityStatus(Long userId);

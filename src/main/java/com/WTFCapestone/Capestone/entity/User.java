@@ -31,8 +31,9 @@ public class User {
 
     private String fullName;
 
-    @Column(length = 10, unique = true)
-//    @Size(min = 10, max = 15) //place this in request dto
+//    @Column(length = 10, unique = true)
+    @Column(unique = true)
+    @Size(min = 10, max = 15) //place this in request dto
     private String phoneNumber;
 
     /* Email validation using Hibernate Validator */
@@ -48,15 +49,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "state_id")
     private State state;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "local_governance_area_id")
     private LocalGovernanceArea localGovernanceArea;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "subregion_id")
     private SubRegion subRegion;
     /*CHANGED: Both Customers and Plumbers gets verified*/
@@ -66,12 +67,12 @@ public class User {
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
     /* national ID (private, verification only) */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "national_id_file_id")
     private StoredFile nationalIdFile;
 
     /* profile photo (public display) */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "profile_photo_file_id")
     private StoredFile profilePhotoFile;
 
@@ -86,8 +87,6 @@ public class User {
 
 
     private Boolean acceptedPrivacyAndPolicy;
-//    private String PrivacyAndPolicyDocument; //To allow users to view/read the document for themselves(
-//    the endpoint is already working we only need to link it to the User class so they can be able to read it)
 
     private LocalDateTime acceptedPrivacyAndPolicyAt;
 
@@ -109,4 +108,16 @@ public class User {
     void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    // 🔒 ACCOUNT LOCK SECURITY
+    @Column(name = "account_locked", nullable = false)
+    @Builder.Default
+    private boolean accountLocked = false;
+
+    @Column(name = "failed_login_attempts", nullable = false)
+    @Builder.Default
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "lock_time")
+    private LocalDateTime lockTime;
 }

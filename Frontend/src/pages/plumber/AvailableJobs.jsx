@@ -5,12 +5,14 @@ import { useNavigate } from "react-router-dom";
 function DashboardLayout({ children, statusLabel, statusColor, header }) {
   const navigate = useNavigate();
   const fileInputRef = useRef();
-  const storedUser = localStorage.getItem("user");
+//   const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [avatar, setAvatar] = useState(user?.avatar || null);
 
   function handleLogout() {
-    localStorage.removeItem("user");
+//     localStorage.removeItem("user");
+   sessionStorage.clear();
     navigate("/login");
   }
   function handleAvatarClick() { fileInputRef.current.click(); }
@@ -19,7 +21,8 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
     if (!file) return;
     const imageUrl = URL.createObjectURL(file);
     setAvatar(imageUrl);
-    localStorage.setItem("user", JSON.stringify({ ...user, avatar: imageUrl }));
+//     localStorage.setItem("user", JSON.stringify({ ...user, avatar: imageUrl }));
+    sessionStorage.setItem("user", JSON.stringify({ ...user, avatar: imageUrl }));
   }
 
   const firstName = user?.fullName?.split(" ")[0] || "Musa";

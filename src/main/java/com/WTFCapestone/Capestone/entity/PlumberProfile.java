@@ -28,7 +28,7 @@ public class PlumberProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 

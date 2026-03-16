@@ -35,6 +35,11 @@ public class SubRegionController {
         return ResponseEntity.ok(subRegionService.getSubRegionByName(name));
     }
 
+//    @GetMapping("/lga/{name}")
+//    public ResponseEntity<?> getByLgaName(@PathVariable String lgaName){
+//        return ResponseEntity.ok(subRegionService.getSubRegionByLgaName(lgaName));
+//    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSubRegion(
             @PathVariable Long id,

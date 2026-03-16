@@ -7,6 +7,7 @@ import Signup from "../pages/publicUsers/SignUp";
 import PricingPage from "../pages/publicUsers/PricingPage";
 import TermsPage from "../pages/publicUsers/TermsPage";
 import PaymentPage from "../pages/publicUsers/PaymentPage";
+import AvailableJobs from "../pages/plumber/AvailableJobs";
 
 // Customer Pages
 import CustomerDashboard from "../pages/customers/CustomerDashboard";

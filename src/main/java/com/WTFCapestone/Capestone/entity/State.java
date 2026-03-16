@@ -23,6 +23,6 @@ public class State {
     private String name;
 
     /* CHANGE: LAZY + prevent JSON recursion */
-    @OneToMany(mappedBy = "state", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "state")
     private Set<LocalGovernanceArea> localGovernanceAreas;
 }
