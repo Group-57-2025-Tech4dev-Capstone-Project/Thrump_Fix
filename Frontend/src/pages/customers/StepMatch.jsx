@@ -74,7 +74,7 @@
 
 
 import { useNavigate } from "react-router-dom";
-import Button from "../../Components/buttons/Buttons";
+// import Button from "../../Components/buttons/Buttons";
 
 export default function StepMatch({ plumber, onClose }) {
   const navigate = useNavigate();
@@ -88,7 +88,7 @@ export default function StepMatch({ plumber, onClose }) {
 
   function handleViewDetails() {
     onClose();              // close the overlay
-    navigate("/dashboard"); // go to dashboard where job history lives
+    navigate(route.ConsumerDashboard); // go to dashboard where job history lives
   }
 
   return (

@@ -1,14 +1,17 @@
+//Frontend/src/pages/plumber/PlumberDashboard
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import LogoIcon from "../../Components/icons/Logo";
 import api from "../../utils/api";
+import route from "../../utils/routes";
 
 // ─── Inline DashboardLayout ────────────────────────────────────────────────
 function DashboardLayout({ children, statusLabel, statusColor, header }) {
   const navigate = useNavigate();
   const fileInputRef = useRef();
 
-  const storedUser = localStorage.getItem("user");
+//   const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [avatar, setAvatar] = useState(user?.avatar || null);
 
@@ -18,8 +21,9 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
     } catch (err) {
       // still clear locally even if request fails
     } finally {
-      localStorage.removeItem("user");
-      navigate("/login");
+//       localStorage.removeItem("user");
+      sessionStorage.clear();
+      navigate(route.Login);
     }
   }
 
@@ -33,7 +37,8 @@ function DashboardLayout({ children, statusLabel, statusColor, header }) {
     const imageUrl = URL.createObjectURL(file);
     setAvatar(imageUrl);
     const updatedUser = { ...user, avatar: imageUrl };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+//     localStorage.setItem("user", JSON.stringify(updatedUser));
+    sessionStorage.setItem("user", JSON.stringify(updatedUser));
   }
 
   const firstName = user?.fullName?.split(" ")[0] || "User";
@@ -187,8 +192,11 @@ export default function PlumberDashboard() {
   const [leads, setLeads]           = useState([]);
   const [plumber, setPlumber]       = useState(null);
   const [claimingId, setClaimingId] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const storedUser  = localStorage.getItem("user");
+//   const storedUser  = localStorage.getItem("user");
+  const storedUser  = sessionStorage.getItem("user");
   const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const userId      = currentUser?.id || currentUser?.userId;
 
@@ -226,11 +234,26 @@ export default function PlumberDashboard() {
   }, []);
 
   // ── 3. Claim (accept) a job ──────────────────────────────────
+//   async function handleClaim(jobId) {
+//     if (!userId) return;
+//     setClaimingId(jobId);
+//     try {
+//       await api.patch(`/jobs/${jobId}/accept?plumberId=${userId}`);
+//       // remove claimed job from the list immediately
+//       setLeads((prev) => prev.filter((j) => j.jobId !== jobId));
+//     } catch (err) {
+//       console.error("Failed to claim job:", err);
+//       alert(err.response?.data?.message || "Could not claim job. Please try again.");
+//     } finally {
+//       setClaimingId(null);
+//     }
+//   }
+
   async function handleClaim(jobId) {
     if (!userId) return;
     setClaimingId(jobId);
     try {
-      await api.patch(`/jobs/${jobId}/accept?plumberId=${userId}`);
+      await api.patch(`/jobs/${jobId}/accept`);
       // remove claimed job from the list immediately
       setLeads((prev) => prev.filter((j) => j.jobId !== jobId));
     } catch (err) {
