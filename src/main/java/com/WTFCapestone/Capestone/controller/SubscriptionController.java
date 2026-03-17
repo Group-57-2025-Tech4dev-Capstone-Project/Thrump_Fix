@@ -49,6 +49,24 @@ public class SubscriptionController {
     }
 
     // =============================
+    // ⭐ NEW — UPGRADE SUBSCRIPTION
+    // =============================
+    @PostMapping("/upgrade")
+    public ResponseEntity<SubscriptionResponse> upgradeSubscription(
+            @Valid @RequestBody SubscriptionRequest request) {
+
+        User user = userService.getCurrentUserEntity();
+
+        Subscription sub =
+                subscriptionService.upgradeSubscription(user, request.getPlan());
+
+        return ResponseEntity.ok(mapToResponse(sub));
+    }
+
+
+
+
+    // =============================
     // MAPPER
     // =============================
     private SubscriptionResponse mapToResponse(Subscription sub) {

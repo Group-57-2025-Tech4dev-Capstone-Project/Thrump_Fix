@@ -18,5 +18,7 @@ public interface SubscriptionService {
 
     void recordPlumberUsage(User user);
 
+    Subscription upgradeSubscription(User user, SubscriptionPlan newPlan);
+
 //    void activateProPlan(User user);
 }

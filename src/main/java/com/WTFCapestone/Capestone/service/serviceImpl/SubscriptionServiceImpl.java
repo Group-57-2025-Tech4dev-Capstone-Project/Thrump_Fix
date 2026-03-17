@@ -57,6 +57,35 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionRepository.save(sub);
     }
 
+
+    // =============================
+    // ⭐ NEW — UPGRADE SUBSCRIPTION
+    // =============================
+    @Override
+    public Subscription upgradeSubscription(User user, SubscriptionPlan newPlan) {
+
+        Subscription sub = subscriptionRepository.findByUser(user)
+                .orElseThrow(() ->
+                        new AuthorizationException("No subscription to upgrade"));
+
+        if (sub.getPlan() == newPlan) {
+            throw new AuthorizationException("Already on this plan");
+        }
+
+        sub.setPlan(newPlan);
+        sub.setUsageCount(0);
+        sub.setStartDate(LocalDate.now());
+        sub.setActive(true);
+
+        if (newPlan == SubscriptionPlan.THRUMPFIX_PRO) {
+            sub.setEndDate(LocalDate.now().plusMonths(1));
+        }
+
+        log.info("User {} upgraded to {}", user.getId(), newPlan);
+
+        return subscriptionRepository.save(sub);
+    }
+
     // =============================
     // VALIDATION BEFORE ACTIONS
     // =============================
@@ -141,3 +170,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                         new AuthorizationException("Subscription not found"));
     }
 }
+
+//    you say "👉 Do you want credit-based subscription
+//        or
+//        👉 time-based unlimited subscription"
+//
+//        if we use credit-based subscription will it be a Paas(payment as a service) then if it is time-based is it you pay first for s defined period of time?
