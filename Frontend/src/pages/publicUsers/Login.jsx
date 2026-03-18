@@ -181,9 +181,6 @@ export default function Login() {
     sessionStorage.setItem("token", token);
     sessionStorage.setItem("user", JSON.stringify(user));
 
-    // sessionStorage.setItem("token", data.token);
-    // sessionStorage.setItem("user", JSON.stringify(data.user));
-
     console.log("✅ Token saved:", token);
     console.log("✅ User saved:", user);
 

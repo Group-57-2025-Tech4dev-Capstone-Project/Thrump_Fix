@@ -135,7 +135,7 @@ export default function StepForm({ selectedLGA, selectedLCDA, onSubmit }) {
         issueDetails:      issue,
         address:           address,
         localGovernanceId: selectedLGA?.id      || null,
-        subregionId:       selectedLCDA?.id     || null,
+        subregionId:       selectedLCDA?.id     || null,  // ✅ Backend expects lowercase subregionId
         stateId:           selectedLGA?.stateId || null,
       });
 
