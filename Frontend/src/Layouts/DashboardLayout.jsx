@@ -4,6 +4,7 @@ import route from "../utils/routes";
 import Logo from "../assets/Logo.svg?react";
 import api from "../utils/api";
 import LayoutMark from "../assets/LayoutMark.svg?react"
+import User from "../assets/User.svg?react"
 
 export default function DashboardLayout({
   children,
@@ -25,13 +26,23 @@ export default function DashboardLayout({
 
   async function handleLogout() {
     try {
+      const token = sessionStorage.getItem("token");
+      const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+      console.log("[LOGOUT] Initiating logout for user:", user.email || user.fullName);
+      console.log("[LOGOUT] Token exists:", !!token);
+      console.log("[LOGOUT] Sending POST /auth/logout...");
       await api.post("/auth/logout");
+      console.log("[LOGOUT] ✅ Logout successful");
     } catch (err) {
-      // proceed anyway
+      console.error("[LOGOUT] ❌ Error:", err.response?.status, err.response?.data || err.message);
+      // proceed with logout anyway even if API fails
+      console.log("[LOGOUT] Proceeding with client-side logout despite API error");
     } finally {
       // ✅ CLEAR session storage properly
+      console.log("[LOGOUT] Clearing sessionStorage...");
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
+      console.log("[LOGOUT] ✅ SessionStorage cleared - redirecting to login");
       navigate(route.Login);
     }
   }
@@ -70,7 +81,7 @@ export default function DashboardLayout({
     }
   }
 
-  const firstName = user?.fullName?.split(" ")[0] || "User";
+  const firstName = user?.fullName?.split?.(" ")?.[0] || user?.firstName || user?.name?.split?.(" ")?.[0] || "User";
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -137,9 +148,7 @@ export default function DashboardLayout({
                 {avatar ? (
                   <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 sm:w-5 sm:h-5">
-                    <path d="..." />
-                  </svg>
+                  <User/>
                 )}
               </div>
 
@@ -147,12 +156,12 @@ export default function DashboardLayout({
                 {firstName}
               </span>
 
-              <span className="text-xs font-bold text-green-600 px-2 py-2 flex items-center gap-1">
+              <span className="text-xs font-bold text-white px-3 py-1.5 flex items-center gap-1 bg-green-600 rounded-lg hover:bg-green-700 transition">
                 <LayoutMark/>
                 <span className="hidden sm:inline">Verified</span>
               </span>
 
-              <button onClick={handleLogout}>
+              <button onClick={handleLogout} className="text-xs font-bold text-gray-700 px-3 py-1.5 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
                 Logout
               </button>
             </div>

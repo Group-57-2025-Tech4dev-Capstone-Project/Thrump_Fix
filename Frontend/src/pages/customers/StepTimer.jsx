@@ -156,13 +156,20 @@ export default function StepTimer({ jobId, onMatch, onNoMatch, onCancel }) {
   const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
+    if (!jobId) return; // Don't start timer without jobId
+
     // Countdown
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
           clearInterval(pollRef.current);
+          
+          // ✅ Timer expired - backend automatically marks job as REJECTED
+          // Frontend just triggers the "no match" UI
+          console.log("[TIMER EXPIRED] No plumber accepted - showing no match screen");
           onNoMatch();
+
           return 0;
         }
         return prev - 1;

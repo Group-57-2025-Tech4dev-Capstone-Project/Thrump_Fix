@@ -7,11 +7,14 @@ const api = axios.create({ baseURL: BASE_URL });
 // ── Attach JWT on every request ───────────────────────────────────────────
 api.interceptors.request.use((config) => {
   const token = sessionStorage.getItem("token");
+  const method = config.method?.toUpperCase() || "REQ";
+  const url = config.url || "";
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log(`[api.js] ${method} ${url} → Token attached (${token.substring(0, 20)}...)`);
   } else {
-    console.warn("[api.js] No token in sessionStorage for:", config.url);
+    console.warn("[api.js] ⚠️ No token in sessionStorage for:", url);
   }
 
   return config;
@@ -32,7 +35,13 @@ function processQueue(newToken, error) {
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const method = response.config?.method?.toUpperCase() || "RES";
+    const url = response.config?.url || "";
+    const status = response.status;
+    console.log(`[api.js] ${method} ${url} → ${status} ✅`);
+    return response;
+  },
   async (error) => {
     const status = error.response?.status;
     const url = error.config?.url || "";
