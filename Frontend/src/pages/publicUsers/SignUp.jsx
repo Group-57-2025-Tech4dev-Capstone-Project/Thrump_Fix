@@ -1,6 +1,7 @@
 import { useReducer, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 import AuthLayout from "../../Components/authLayout/AuthLayout.jsx";
 import RoleToggle from "../../Components/toggle/RoleToggle";
@@ -10,6 +11,8 @@ import route from "../../utils/routes";
 import api from "../../utils/api";
 import "./signup.css";
 import ArrowdownSignup from "../../assets/ArrowdownSignup.svg?react"
+
+const BASE = "https://thrump-fix-lbm8.onrender.com/api";
 
 const initialState = {
   role: "CUSTOMER",
@@ -72,14 +75,19 @@ export default function Signup() {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm({ shouldUnregister: true, mode: "onChange" });
+  } = useForm({
+    shouldUnregister: true,
+    mode: "onChange",
+    defaultValues: { stateId: "" }
+  });
 
   const isReady = isValid && agreed && !!idFile;
 
+  // ── Public endpoints — use plain axios (no Authorization header)
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const res = await api.get("/states");
+        const res = await axios.get(`${BASE}/states`);
         dispatch({ type: "SET_STATES", payload: res.data });
       } catch (err) {
         console.error("Failed to fetch states:", err);
@@ -88,13 +96,12 @@ export default function Signup() {
     fetchStates();
   }, []);
 
-  // Fetch LGAs when state is selected
   useEffect(() => {
     if (!selectedStateId) return;
     const fetchLgas = async () => {
       dispatch({ type: "SET_LOCATION_LOADING", payload: true });
       try {
-        const res = await api.get(`/lgas/state/${selectedStateId}`);
+        const res = await axios.get(`${BASE}/lgas/state/${selectedStateId}`);
         dispatch({ type: "SET_LGAS", payload: res.data });
       } catch (err) {
         console.error("Failed to fetch LGAs:", err);
@@ -105,13 +112,12 @@ export default function Signup() {
     fetchLgas();
   }, [selectedStateId]);
 
-  // Fetch SubRegions when LGA is selected
   useEffect(() => {
     if (!selectedLgaId) return;
     const fetchSubRegions = async () => {
       dispatch({ type: "SET_LOCATION_LOADING", payload: true });
       try {
-        const res = await api.get(`/subregions/lga/${selectedLgaId}`);
+        const res = await axios.get(`${BASE}/subregions/lga/${selectedLgaId}`);
         dispatch({ type: "SET_SUBREGIONS", payload: res.data });
       } catch (err) {
         console.error("Failed to fetch sub regions:", err);
@@ -144,12 +150,12 @@ export default function Signup() {
       formData.append("phoneNumber", data.phoneNumber);
       formData.append("password", data.password);
       formData.append("role", role);
-      formData.append("stateId", data.stateId);  
+      formData.append("stateId", data.stateId);
       formData.append("localGovernanceAreaId", data.lgaId);
       formData.append("subRegionId", data.subRegionId);
       formData.append("acceptedPrivacyPolicy", true);
 
-      const res = await api.post("/auth/register/with-image", formData, {
+      const res = await axios.post(`${BASE}/auth/register/with-image`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       localStorage.setItem("user", JSON.stringify(res.data));
@@ -157,7 +163,6 @@ export default function Signup() {
 
     } catch (error) {
       console.error("Signup error:", error);
-      // Show the backend
       const message =
         error.response?.data?.message ||
         error.response?.data ||
@@ -167,7 +172,6 @@ export default function Signup() {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
-
 
   return (
     <AuthLayout title="Account Setup">
@@ -236,16 +240,28 @@ export default function Signup() {
                 dispatch({ type: "SET_SELECTED_STATE", payload: e.target.value });
               }}
             >
-              <option value="">Select State</option>
-              {states.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}          
+              <option value="" disabled>State</option>
+              {states
+                .slice()
+                .sort((a, b) => a.name === "Lagos" ? -1 : b.name === "Lagos" ? 1 : 0)
+                .map((s) => {
+                  const isLagos = s.name === "Lagos";
+                  return (
+                    <option
+                      key={s.id}
+                      value={s.id}
+                      disabled={!isLagos}
+                      style={{ color: isLagos ? "inherit" : "#aaa" }}
+                    >
+                      {isLagos ? s.name : `${s.name} (Coming Soon)`}
+                    </option>
+                  );
+                })}
             </select>
             <span className="select-arrow">
-                <ArrowdownSignup/>
+              <ArrowdownSignup />
             </span>
           </div>
-            
           {errors.stateId && <p className="errorText">{errors.stateId.message}</p>}
         </div>
 
@@ -272,7 +288,7 @@ export default function Signup() {
               ))}
             </select>
             <span className="select-arrow">
-                <ArrowdownSignup/>
+              <ArrowdownSignup />
             </span>
           </div>
           {errors.lgaId && <p className="errorText">{errors.lgaId.message}</p>}
@@ -297,10 +313,9 @@ export default function Signup() {
               ))}
             </select>
             <span className="select-arrow">
-              <ArrowdownSignup/>
+              <ArrowdownSignup />
             </span>
           </div>
-
           {errors.subRegionId && <p className="errorText">{errors.subRegionId.message}</p>}
         </div>
 
@@ -318,21 +333,13 @@ export default function Signup() {
           />
           <label htmlFor="terms">
             I agree to the{" "}
-           <Link
-              to={route.Terms}
-              // target="_blank"
-              // rel="noopener noreferrer"
-              className="terms-link"
-            >
+            <Link to={route.Terms} className="terms-link">
               TERMS & CONDITIONS
             </Link>
           </label>
         </div>
 
         {submitError && <p className="submit-error">{submitError}</p>}
-
-        
-
 
         <button
           type="submit"

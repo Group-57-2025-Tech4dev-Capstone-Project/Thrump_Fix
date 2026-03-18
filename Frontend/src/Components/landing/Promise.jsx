@@ -54,7 +54,7 @@ export default function Promise() {
         <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 max-w-4xl mx-auto">
           {promises.map((item) => (
             <div
-              key={item}
+              key={item.title}
               className="flex flex-col items-center text-center rounded-2xl p-8 flex-1"
             >
               {/* Icon — centered */}

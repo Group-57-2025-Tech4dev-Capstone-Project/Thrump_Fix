@@ -1,5 +1,10 @@
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import { Card } from "../../Components/card/Card.jsx";
+=======
+import { Card } from "../../Components/card/Card";
+
+>>>>>>> Testing-frontend
 import Button from "../../Components/buttons/Buttons";
 import route from "../../utils/routes";
 

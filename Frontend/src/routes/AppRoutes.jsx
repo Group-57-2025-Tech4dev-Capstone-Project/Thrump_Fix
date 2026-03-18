@@ -7,7 +7,7 @@ import Signup from "../pages/publicUsers/SignUp";
 import PricingPage from "../pages/publicUsers/PricingPage";
 import TermsPage from "../pages/publicUsers/TermsPage";
 import PaymentPage from "../pages/publicUsers/PaymentPage";
-import AvailableJobs from "../pages/plumber/AvailableJobs";
+// import AvailableJobs from "../pages/plumber/AvailableJobs";
 
 // Customer Pages
 import CustomerDashboard from "../pages/customers/CustomerDashboard";
@@ -15,8 +15,8 @@ import CustomerDashboard from "../pages/customers/CustomerDashboard";
 
 // Plumber Pages
 import PlumberDashboard from "../pages/plumber/PlumberDashboard";
-import AvailableJob from "../pages/plumber/AvailableJobs"
-import ActiveJobs from "../pages/plumber/Active"
+// import AvailableJob from "../pages/plumber/AvailableJobs"
+// import ActiveJobs from "../pages/plumber/Active"
 
 // Route Protection
 import ProtectedRoute from "./ProtectedRoute"
@@ -60,23 +60,23 @@ export default function AppRoutes(){
                 }>
             </Route>
 
-            <Route
+            {/* <Route
                 path={route.AvailableJob}
                 element={
                     <ProtectedRoute>
                         <AvailableJob/>
                     </ProtectedRoute>
                 }>
-            </Route>
+            </Route> */}
 
-            <Route
+            {/* <Route
                 path={route.ActiveJob}
                 element={
                     <ProtectedRoute>
                         <ActiveJobs/>
                     </ProtectedRoute>
                 }>
-            </Route>
+            </Route> */}
 
 
        </Routes>

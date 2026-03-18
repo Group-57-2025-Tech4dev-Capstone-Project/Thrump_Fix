@@ -9,7 +9,7 @@ const route = {
     Terms: "/terms&conditions",
     Payment: "/payment",
     // PlumberList: "/consumer/plumberList",
-    AvailableJob: "/plumber/availableJob",
+    // AvailableJob: "/plumber/availableJob",
     // ActiveJob: "/Plumber/ActiveJob",
 };
 
