@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Card } from "../../components/Card/Card";
+import { Card } from "../../Components/card/Card";
 
-import Button from "../../components/buttons/Buttons";
+import Button from "../../Components/buttons/Buttons";
 import route from "../../utils/routes";
 
 const CheckIcon = () => (
