@@ -222,12 +222,39 @@ import StepMatch from "./StepMatch";
 import StepNoMatch from "./StepNoMatch";
 import Logo from "../../assets/Logo.svg?react";
 
-export default function AssistantOverlay({ onClose }) {
+export default function AssistantOverlay({ onClose, blocked }) {
   const [step, setStep]                     = useState("lga");
   const [selectedLGA, setSelectedLGA]       = useState(null);
   const [selectedLCDA, setSelectedLCDA]     = useState(null);
   const [matchedPlumber, setMatchedPlumber] = useState(null);
   const [jobId, setJobId]                   = useState(null);
+
+  if (blocked) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-blue-100/70 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-blue-600 px-5 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Logo />
+              <div>
+                <p className="text-white font-black text-sm">Upgrade Required</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="text-white/70 hover:text-white transition">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="p-6 text-center">
+            <p className="text-gray-700 mb-4">Your free trial has expired. Upgrade to Pro to post more jobs.</p>
+            <button onClick={onClose} className="bg-blue-600 text-white px-4 py-2 rounded-full">Close</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Step 1 — pick LGA → go to LCDA
   function handleLGASelect(lga) {
