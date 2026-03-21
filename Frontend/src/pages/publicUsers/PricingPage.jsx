@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "../../Components/card/Card";
-
 import Button from "../../Components/buttons/Buttons";
 import route from "../../utils/routes";
 
