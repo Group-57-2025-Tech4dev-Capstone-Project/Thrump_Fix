@@ -45,9 +45,8 @@ function signupReducer(state, action) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // TERMS OVERLAY
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 function TermsOverlay({ onClose }) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-50">
@@ -138,9 +137,8 @@ function TermsOverlay({ onClose }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // SIGNUP
-// ─────────────────────────────────────────────────────────────────────────────
+
 export default function Signup() {
   const [state, dispatch] = useReducer(signupReducer, initialState);
   const [showTerms, setShowTerms] = useState(false);
@@ -292,7 +290,7 @@ export default function Signup() {
             placeholder="0801-234-5678"
             {...register("phoneNumber", {
               required: "Phone number is required",
-              pattern: { value: /^0[789][01]\d{7}$/, message: "Must be a valid Nigerian phone number" },
+              pattern: { value: /^0[789][01]\d{8}$/, message: "Must be a valid Nigerian phone number" },
             })}
             error={errors.phoneNumber?.message}
           />
@@ -380,7 +378,7 @@ export default function Signup() {
           </div>
 
           <FileUpload
-            label="National ID / LASRRA Photo"
+            label="National ID"
             onFileChange={(file) => dispatch({ type: "SET_FILE", payload: file })}
           />
 

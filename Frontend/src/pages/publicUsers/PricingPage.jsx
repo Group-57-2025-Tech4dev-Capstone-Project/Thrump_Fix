@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Card } from "../../Components/Card/Card";
+import { Card } from "../../Components/card/Card";
 
 import Button from "../../Components/buttons/Buttons";
 import route from "../../utils/routes";
@@ -86,8 +86,8 @@ export default function PricingPage() {
           <Button
             variant="outline-2"
             size="lg"
-            onClick={() => navigate(route.Login)}   // ← goes to Login
-            className="w-full justify-center tracking-widest text-xs font-bold rounded-[32px] h-[48px]"
+            onClick={() => navigate(route.Login)}   
+            className="w-full justify-center tracking-widest text-xs font-bold rounded-[32px] h-[48px] border border-blue-600"
           >
             GET STARTED
           </Button>
@@ -122,7 +122,7 @@ export default function PricingPage() {
           <Button
             variant="primary"
             size="lg"
-            onClick={() => navigate(route.Payment)}  // ← goes to Payment
+            onClick={() => navigate(route.Payment)}
             className="w-full justify-center tracking-widest text-xs font-bold rounded-[32px] h-[56px] shadow-[0px_8px_30px_0px_#2563EB4D] bg-blue-600 hover:bg-blue-700"
           >
             GO UNLIMITED

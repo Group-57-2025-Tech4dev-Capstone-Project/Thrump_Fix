@@ -30,8 +30,7 @@ export default function PaymentPage() {
     setLoading(true);
     setError("");
     try {
-      // Backend only supports FREE_TRIAL plan for now.
-      // Calling this resets usageCount to 0 + active to true,
+      
       // which clears the trial expiry banner on next login.
       await api.post("/subscription/start", { plan: "FREE_TRIAL" });
       navigate(route.Login, {

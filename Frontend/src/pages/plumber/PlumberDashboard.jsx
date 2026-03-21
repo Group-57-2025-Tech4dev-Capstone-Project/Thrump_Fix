@@ -40,7 +40,7 @@ export default function PlumberDashboard() {
     && (usageCount >= 1 || subscription?.active === false);
   const blocked = trialExpired;
 
-  // ── Role guard — navigate is in deps (correct pattern)
+  // ── Role guard
   useEffect(() => {
     if (!user) {
       navigate(route.Login, { replace: true });
@@ -49,7 +49,7 @@ export default function PlumberDashboard() {
     if (user.role?.toUpperCase() !== "PLUMBER") {
       navigate(route.ConsumerDashboard, { replace: true });
     }
-  }, [navigate]); // ← navigate is stable, safe to include
+  }, [navigate]);
 
   // ── Fetch plumber profile
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function PlumberDashboard() {
     return () => clearInterval(interval);
   }, [fetchLeads, fetchHistory, fetchSubscription]);
 
-  // ── Open confirmation modal — uses leadsRef (always current, no stale closure)
+  // ── Open confirmation modal — uses leadsRef
   const handleClaim = useCallback((jobId) => {
     const job = leadsRef.current.find(j => j.jobId === jobId);
     if (!job) return;
