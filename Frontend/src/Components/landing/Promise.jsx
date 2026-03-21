@@ -47,7 +47,7 @@ export default function Promise() {
 
         {/* Heading */}
         <h2 className="text-center text-4xl md:text-5xl font-bold text-gray-900 mb-12">
-          The PlumbConnect Promise
+          The Thrump Fix Promise
         </h2>
 
         {/* Cards — centered, not full width */}

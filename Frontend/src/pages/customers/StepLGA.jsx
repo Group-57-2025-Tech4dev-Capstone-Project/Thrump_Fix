@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from "react";
 import api from "../../utils/api";
 
-const LAGOS_STATE_ID = 1; // Lagos is the only state
+const LAGOS_STATE_ID = 1; 
 
 const initialState = {
   lgas:    [],

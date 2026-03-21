@@ -309,7 +309,7 @@ export default function AssistantOverlay({ onClose, blocked }) {
           <div className="flex items-center gap-3">
             <Logo />
             <div>
-              <p className="text-white font-black text-sm">PlumbConnect Assistant</p>
+              <p className="text-white font-black text-sm">Thrump Fix Assistant</p>
               {step === "timer" && (
                 <p className="text-blue-200 text-xs font-semibold uppercase tracking-widest">
                   Lead Broadcast Active
