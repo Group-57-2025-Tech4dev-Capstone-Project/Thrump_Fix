@@ -35,9 +35,11 @@ export default function PlumberDashboard() {
 
   // Subscription blocking
   const usageCount = subscription?.usageCount ?? 0;
-  const trialExpired = subscription !== null
-    && subscription?.plan === "FREE_TRIAL"
-    && (usageCount >= 1 || subscription?.active === false);
+  const isExpired = subscription?.status === "EXPIRED";
+  const isActive = subscription?.status === "ACTIVE";
+  const isTrial = subscription?.plan === "FREE_TRIAL";
+
+  const trialExpired = subscription?.status === "EXPIRED";
   const blocked = trialExpired;
 
   // ── Role guard
@@ -49,7 +51,7 @@ export default function PlumberDashboard() {
     if (user.role?.toUpperCase() !== "PLUMBER") {
       navigate(route.ConsumerDashboard, { replace: true });
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
   // ── Fetch plumber profile
   useEffect(() => {
@@ -72,7 +74,38 @@ export default function PlumberDashboard() {
   const fetchLeads = useCallback(async () => {
     try {
       const res = await api.get("/jobs/available");
-      const jobs = Array.isArray(res.data) ? res.data : [];
+      // const jobs = Array.isArray(res.data) ? res.data : [];
+
+      // // temporary fix for backend returning {} instead of [] when no jobs available in region
+
+      let jobs = Array.isArray(res.data) ? res.data : [];
+
+      //  TEMP FIX: force fake jobs if empty
+      if (jobs.length === 0) {
+        jobs = [
+          {
+            jobId: 989,
+            customerFullName: "Test Customer",
+            address: "Test Address",
+            issueDetails: "Blocked test job",
+          },
+
+           {
+            jobId: 990,
+            customerFullName: "Test Customer",
+            address: "Test Address",
+            issueDetails: "Blocked test job",
+          },
+           {
+            jobId: 991,
+            customerFullName: "Test Customer",
+            address: "Test Address",
+            issueDetails: "Blocked test job",
+          }
+        ];
+      }
+
+
       setLeads(jobs);
       leadsRef.current = jobs;
       if (jobs.length > 0) {
@@ -207,25 +240,34 @@ export default function PlumberDashboard() {
       )}
 
       <DashboardLayout
+        // trialExpired={trialExpired}
+        // user={user}
+        // onUpgrade={() => navigate(route.Payment, { state: { from: "dashboard" } })}
         trialExpired={trialExpired}
-        user={user}
         onUpgrade={() => navigate(route.Payment, { state: { from: "dashboard" } })}
+        statusLabel={isActive ? "Active Plan" : "Free Trial"}
+        statusColor={isActive ? "green" : "gray"}
       >
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-xl font-black text-gray-900">
-            Showing jobs for{" "}
-            <span className="text-blue-600">{regionLabel}</span>
+        <div className="mb-6 mt-6">
+          <h1 className="text-2xl font-extrabold text-gray-900">
+            Available Jobs
           </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Showing jobs for{" "}
+            <span className="text-sm font-bold text-gray-800 mt-1">
+              {regionLabel}
+            </span>
+          </p>
           {!loading && leads.length > 0 && (
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-gray-500 mt-0.5 font-bold">
               {leads.length} Job{leads.length !== 1 ? "s" : ""} Available
             </p>
           )}
         </div>
 
         {/* AVAILABLE JOBS */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+        {/* <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
           <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
@@ -253,7 +295,7 @@ export default function PlumberDashboard() {
             ) : leads.length === 0 ? (
               <EmptyJobsState />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4 flex flex-col items-center">
                 {leads.map((lead) => (
                   <AvailableJobCard
                     key={lead.jobId}
@@ -266,7 +308,48 @@ export default function PlumberDashboard() {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
+
+        {leads.length === 0 ? (
+          // ✅ EMPTY STATE (with box)
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <h2 className="text-xs font-extrabold uppercase tracking-[0.15em] text-gray-800">
+                  Marketplace Opportunities
+                </h2>
+              </div>
+
+              <button
+                onClick={handleRefresh}
+                className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-300 bg-gray-50 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0113.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Refresh Live Feed
+              </button>
+            </div>
+
+            <div className="px-5 sm:px-6 py-6">
+              <EmptyJobsState />
+            </div>
+          </div>
+        ) : (
+          // ✅ WHEN JOBS EXIST → NO BOX, JUST CARDS
+          <div className="space-y-4 flex flex-col items-center">
+            {leads.map((lead) => (
+              <AvailableJobCard
+                key={lead.jobId}
+                job={lead}
+                onRequestClaim={handleClaim}
+                blocked={blocked}
+                claiming={claimingId === lead.jobId}
+              />
+            ))}
+          </div>
+        )}
 
         {/* ASSIGNED JOBS HISTORY */}
         {jobHistory.length > 0 && (

@@ -32,7 +32,7 @@ export default function PaymentPage() {
     try {
       
       // which clears the trial expiry banner on next login.
-      await api.post("/subscription/start", { plan: "FREE_TRIAL" });
+      await api.post("/subscription/upgrade", { plan: "Pro" });
       navigate(route.Login, {
         state: { message: "🎉 Subscription activated! Please log in to continue." }
       });
