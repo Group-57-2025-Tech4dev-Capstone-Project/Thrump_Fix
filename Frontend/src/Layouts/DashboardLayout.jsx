@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useRef, useState } from "react";
 import route from "../utils/routes";
 import Logo from "../assets/Logo.svg?react";
 import api from "../utils/api";
-import LayoutMark from "../assets/LayoutMark.svg?react"
+// import LayoutMark from "../assets/LayoutMark.svg?react"
 import User from "../assets/User.svg?react"
+import Verified from "../assets/Verified.svg?react"
+import Logout from "../assets/Logout.svg?react"
 
 export default function DashboardLayout({
   children,
@@ -17,12 +20,25 @@ export default function DashboardLayout({
   const navigate = useNavigate();
   const fileInputRef = useRef();
 
-  // ✅ CHANGED: localStorage → sessionStorage
   const storedUser = sessionStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  const [avatar, setAvatar] = useState(user?.avatar || null);
+  const [avatar, setAvatar] = useState(
+    user?.avatar || user?.profilePhotoUrl || null
+  );
   const [uploading, setUploading] = useState(false);
+
+  // image
+
+  useEffect(() => {
+  const stored = sessionStorage.getItem("user");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    if (parsed?.avatar) {
+      setAvatar(parsed.avatar);
+    }
+  }
+}, []);
 
   async function handleLogout() {
     try {
@@ -64,22 +80,32 @@ export default function DashboardLayout({
     setUploading(true);
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("file", file);
 
-      await api.post(`/users/users/${userId}/profile-photo`, formData, {
+      const res = await api.post(`/users/profile-photo/${userId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // ✅ UPDATE sessionStorage
-      const updatedUser = { ...user, avatar: previewUrl };
+      console.log("FULL RESPONSE:", res);
+      console.log("DATA:", res.data);
+
+      const uploadedUrl = res.data?.profilePhotoUrl;
+
+      if (!uploadedUrl) {
+        console.error("❌ No profilePhotoUrl returned from backend");
+        return;
+      }
+
+      const updatedUser = { ...user, avatar: uploadedUrl };
       sessionStorage.setItem("user", JSON.stringify(updatedUser));
+      setAvatar(uploadedUrl);
 
     } catch (err) {
-      console.error("Failed to upload profile photo:", err);
+      console.error("UPLOAD ERROR:", err.response?.data || err.message);
     } finally {
-      setUploading(false);
+        setUploading(false);
+      }
     }
-  }
 
   const firstName = user?.fullName?.split?.(" ")?.[0] || user?.firstName || user?.name?.split?.(" ")?.[0] || "User";
 
@@ -156,12 +182,13 @@ export default function DashboardLayout({
                 {firstName}
               </span>
 
-              <span className="text-xs font-bold text-green-600 px-4 py-2.5 flex items-center gap-1 rounded-2xl" style={{ backgroundColor: "#ECFDF5" }}>
-                <LayoutMark/>
+              <span className="text-xs font-bold text-green-600 px-4 py-2.5 inline-flex items-center gap-1 rounded-2xl" style={{ backgroundColor: "#ECFDF5" }}>
+                <Verified/>
                 <span className="hidden sm:inline">Verified</span>
               </span>
 
-              <button onClick={handleLogout} className="text-xs font-bold text-gray-700 px-4 py-2.5 bg-white rounded-2xl transition" style={{ boxShadow: "0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A" }}>
+              <button onClick={handleLogout} className="inline-flex items-center gap-1 text-xs font-bold text-gray-700 px-4 h-[36px] leading-none bg-white rounded-2xl transition" style={{ boxShadow: "0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A" }}>
+                <Logout />
                 Logout
               </button>
             </div>
@@ -171,7 +198,7 @@ export default function DashboardLayout({
 
       {header && <div className="px-6 lg:px-12 mx-auto w-full max-w-7xl">{header}</div>}
 
-      <main className="flex-1 px-6 lg:px-12 mx-auto w-full max-w-7xl">{children}</main>
+      <main className="flex-1 px-6 sm:px-8 lg:px-8 mx-auto w-full max-w-[1100px]">{children}</main>
     </div>
   );
 }
