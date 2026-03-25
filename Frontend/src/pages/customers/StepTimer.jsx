@@ -41,15 +41,25 @@ export default function StepTimer({ jobId, onMatch, onNoMatch, onCancel }) {
         console.log("[STEP TIMER POLL] Checking jobs history for jobId", jobId);
         const jobs = Array.isArray(res.data) ? res.data : [];
         const matched = jobs.find(
-          (j) => j.jobId === jobId && j.status?.toUpperCase() === "MATCHED"
+          (j) => j.jobId === jobId && j.status?.toUpperCase() === "ACCEPTED"
         );
 
+        // if (matched) {
+        //   console.log("[STEP TIMER] ✅ Job matched! Stopping timer.");
+        //   clearInterval(timerRef.current);
+        //   clearInterval(pollRef.current);
+        //   onMatch();
+        // }
+
         if (matched) {
-          console.log("[STEP TIMER] ✅ Job matched! Stopping timer.");
-          clearInterval(timerRef.current);
-          clearInterval(pollRef.current);
-          onMatch();
-        }
+        console.log("[STEP TIMER] ✅ Job accepted! Stopping timer.");
+        clearInterval(timerRef.current);
+        clearInterval(pollRef.current);
+        onMatch({
+          name:  matched.plumberFullName,
+          phone: matched.plumberPhoneNumber,
+        });
+      }
       } catch (err) {
         console.warn("[TIMER POLL] Failed:", err.message);
       }

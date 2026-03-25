@@ -196,9 +196,9 @@ export default function DashboardLayout({
         </div>
       </nav>
 
-      {header && <div className="px-6 lg:px-12 mx-auto w-full max-w-7xl">{header}</div>}
+      {header && <div className="px-6 lg:px-12 mx-auto w-full max-w-7xl mt-6 mb-2">{header}</div>}
 
-      <main className="flex-1 px-6 sm:px-8 lg:px-8 mx-auto w-full max-w-[1100px]">{children}</main>
+      <main className="flex-1 px-6 sm:px-8 lg:px-8 mx-auto w-full max-w-[1100px] mt-4 mb-6">{children}</main>
     </div>
   );
 }

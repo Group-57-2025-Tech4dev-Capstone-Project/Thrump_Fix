@@ -41,10 +41,10 @@
 
 /*   COMING SOON STATE OPTIONS */
 
-.state-coming-soon {
+/* .state-coming-soon {
   color: #9ca3af;
   font-style: italic;
-}
+} */
 
 .select-wrapper select option:first-child {
   background-color: #d1d5db;
@@ -52,4 +52,16 @@
   font-weight: 600;
 }
 
+/* 
+.select-wrapper select {
+  color: #111827; 
+}
 
+.select-wrapper select option {
+  color: #111827;
+  background-color: white;
+}
+
+.select-wrapper select option:disabled {
+  color: #9ca3af; 
+} */
