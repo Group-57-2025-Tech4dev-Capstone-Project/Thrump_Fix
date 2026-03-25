@@ -74,36 +74,36 @@ export default function PlumberDashboard() {
   const fetchLeads = useCallback(async () => {
     try {
       const res = await api.get("/jobs/available");
-      // const jobs = Array.isArray(res.data) ? res.data : [];
+      const jobs = Array.isArray(res.data) ? res.data : [];
 
       // // temporary fix for backend returning {} instead of [] when no jobs available in region
 
-      let jobs = Array.isArray(res.data) ? res.data : [];
+      // let jobs = Array.isArray(res.data) ? res.data : [];
 
-      //  TEMP FIX: force fake jobs if empty
-      if (jobs.length === 0) {
-        jobs = [
-          {
-            jobId: 989,
-            customerFullName: "Test Customer",
-            address: "Test Address",
-            issueDetails: "Blocked test job",
-          },
+      // //  TEMP FIX: force fake jobs if empty
+      // if (jobs.length === 0) {
+      //   jobs = [
+      //     {
+      //       jobId: 989,
+      //       customerFullName: "Test Customer",
+      //       address: "Test Address",
+      //       issueDetails: "Blocked test job",
+      //     },
 
-           {
-            jobId: 990,
-            customerFullName: "Test Customer",
-            address: "Test Address",
-            issueDetails: "Blocked test job",
-          },
-           {
-            jobId: 991,
-            customerFullName: "Test Customer",
-            address: "Test Address",
-            issueDetails: "Blocked test job",
-          }
-        ];
-      }
+      //      {
+      //       jobId: 990,
+      //       customerFullName: "Test Customer",
+      //       address: "Test Address",
+      //       issueDetails: "Blocked test job",
+      //     },
+      //      {
+      //       jobId: 991,
+      //       customerFullName: "Test Customer",
+      //       address: "Test Address",
+      //       issueDetails: "Blocked test job",
+      //     }
+      //   ];
+      // }
 
 
       setLeads(jobs);
