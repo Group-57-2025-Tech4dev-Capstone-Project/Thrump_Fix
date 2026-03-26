@@ -15,8 +15,8 @@ export default function HistoryCard({ job }) {
 
   const badge = getStatusBadge();
 
-  const customerInitials = job.customerFullName
-    ? job.customerFullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+  const customerInitials = job.customerName
+    ? job.customerName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
     : "CU";
 
   return (
@@ -34,7 +34,7 @@ export default function HistoryCard({ job }) {
 
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-[15px] font-semibold text-gray-900 truncate">{job.customerFullName || "Customer"}</p>
+                <p className="text-[15px] font-semibold text-gray-900 truncate">{job.customerName || "Customer"}</p>
                 <div className="flex items-center gap-1 text-green-600 text-xs flex-shrink-0">
                   <Verified className="w-4 h-4" />
                   <span className="font-medium">Verified</span>

@@ -80,35 +80,19 @@ export default function ConsumerDashboard() {
     return;
   }
   dispatch({ type: "SET_USER", payload: parsed });
-  // ← NOTHING ELSE HERE. No subscription/start call.
+  // Start free trial once — backend ignores if subscription already exists
+  // api.post("/subscription/start", { plan: "FREE_TRIAL" }).catch(() => {});
 }, [navigate]);
 
   const firstName = user?.fullName?.split?.(" ")?.[0] || "User";
   const isNewUser = jobs.length === 0;
-
- // ── Fetch subscription AND also check if user has used their free trial 
-  // const fetchSubscription = useCallback(async () => {
-  //   try {
-  //     const res = await api.get("/subscription/me");
-  //     const sub = res.data;
-  //     console.log("[CONSUMER SUBSCRIPTION]", sub);
-
-  //     const isExpired = sub?.status === "EXPIRED";   // Only this decides now
-
-  //     dispatch({ type: "SET_TRIAL_EXPIRED", payload: isExpired });
-  //   } catch (err) {
-  //     console.log("[CONSUMER SUBSCRIPTION ERROR]", err.response?.status);
-  //     // No subscription yet = still on free trial
-  //     dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
-  //   }
-  // }, []);
 
   const fetchSubscription = useCallback(async () => {
   try {
     const res = await api.get("/subscription/me");
     const sub = res.data;
     console.log("[CONSUMER SUBSCRIPTION]", sub);
-    const isExpired = sub?.status === "EXPIRED";
+    const isExpired = sub?.active === false;
     dispatch({ type: "SET_TRIAL_EXPIRED", payload: isExpired });
   } catch (err) {
     const status = err.response?.status;
@@ -188,12 +172,29 @@ export default function ConsumerDashboard() {
         {isNewUser ? "Welcome," : "Welcome back,"}{" "}
         <span className="font-black text-gray-900">{firstName}</span>
       </p>
-      <button
+      {/* <button
         onClick={() => { if (!trialExpired) dispatch({ type: "SHOW_OVERLAY" }); }}
         disabled={trialExpired}
         className={`flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-full transition shadow-md shadow-blue-200 whitespace-nowrap ${
           trialExpired
             ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700 text-white"
+        }`}
+      >
+        {trialExpired ? "Upgrade to Post More Jobs" : "+ New Repair Request"}
+      </button> */}
+
+      <button
+        onClick={() => {
+          if (trialExpired) {
+            navigate(route.Payment, { state: { from: "dashboard" } });
+          } else {
+            dispatch({ type: "SHOW_OVERLAY" });
+          }
+        }}
+        className={`flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-full transition shadow-md shadow-blue-200 whitespace-nowrap ${
+          trialExpired
+            ? "bg-gray-400 text-white"
             : "bg-blue-600 hover:bg-blue-700 text-white"
         }`}
       >
@@ -322,7 +323,8 @@ export default function ConsumerDashboard() {
 
       {showOverlay && (
         <AssistantOverlay
-          blocked={trialExpired}
+          // blocked={trialExpired}
+          blocked={false} 
           onClose={() => {
             dispatch({ type: "HIDE_OVERLAY" });
             fetchJobs();
