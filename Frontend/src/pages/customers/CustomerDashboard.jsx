@@ -58,38 +58,77 @@ export default function ConsumerDashboard() {
   const navigate = useNavigate();
 
   // ── Load user on mount + start free trial silently
+  // useEffect(() => {
+  //   const stored = sessionStorage.getItem("user");
+  //   if (!stored) { navigate(route.Login, { replace: true }); return; }
+  //   const parsed = JSON.parse(stored);
+  //   if (parsed.role?.toUpperCase() === "PLUMBER") {
+  //     navigate(route.PlumberDashboard, { replace: true });
+  //     return;
+  //   }
+  //   dispatch({ type: "SET_USER", payload: parsed });
+  //   // Start free trial silently — backend ignores if already exists
+  //   api.post("/subscription/start", { plan: "FREE_TRIAL" }).catch(() => {});
+  // }, [navigate]);
+
   useEffect(() => {
-    const stored = sessionStorage.getItem("user");
-    if (!stored) { navigate(route.Login, { replace: true }); return; }
-    const parsed = JSON.parse(stored);
-    if (parsed.role?.toUpperCase() === "PLUMBER") {
-      navigate(route.PlumberDashboard, { replace: true });
-      return;
-    }
-    dispatch({ type: "SET_USER", payload: parsed });
-    // Start free trial silently — backend ignores if already exists
-    api.post("/subscription/start", { plan: "FREE_TRIAL" }).catch(() => {});
-  }, [navigate]);
+  const stored = sessionStorage.getItem("user");
+  if (!stored) { navigate(route.Login, { replace: true }); return; }
+  const parsed = JSON.parse(stored);
+  if (parsed.role?.toUpperCase() === "PLUMBER") {
+    navigate(route.PlumberDashboard, { replace: true });
+    return;
+  }
+  dispatch({ type: "SET_USER", payload: parsed });
+  // ← NOTHING ELSE HERE. No subscription/start call.
+}, [navigate]);
 
   const firstName = user?.fullName?.split?.(" ")?.[0] || "User";
   const isNewUser = jobs.length === 0;
 
  // ── Fetch subscription AND also check if user has used their free trial 
+  // const fetchSubscription = useCallback(async () => {
+  //   try {
+  //     const res = await api.get("/subscription/me");
+  //     const sub = res.data;
+  //     console.log("[CONSUMER SUBSCRIPTION]", sub);
+
+  //     const isExpired = sub?.status === "EXPIRED";   // Only this decides now
+
+  //     dispatch({ type: "SET_TRIAL_EXPIRED", payload: isExpired });
+  //   } catch (err) {
+  //     console.log("[CONSUMER SUBSCRIPTION ERROR]", err.response?.status);
+  //     // No subscription yet = still on free trial
+  //     dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
+  //   }
+  // }, []);
+
   const fetchSubscription = useCallback(async () => {
-    try {
-      const res = await api.get("/subscription/me");
-      const sub = res.data;
-      console.log("[CONSUMER SUBSCRIPTION]", sub);
-
-      const isExpired = sub?.status === "EXPIRED";   // Only this decides now
-
-      dispatch({ type: "SET_TRIAL_EXPIRED", payload: isExpired });
-    } catch (err) {
-      console.log("[CONSUMER SUBSCRIPTION ERROR]", err.response?.status);
-      // No subscription yet = still on free trial
+  try {
+    const res = await api.get("/subscription/me");
+    const sub = res.data;
+    console.log("[CONSUMER SUBSCRIPTION]", sub);
+    const isExpired = sub?.status === "EXPIRED";
+    dispatch({ type: "SET_TRIAL_EXPIRED", payload: isExpired });
+  } catch (err) {
+    const status = err.response?.status;
+    console.log("[CONSUMER SUBSCRIPTION ERROR]", status);
+    if (status === 404) {
+      // No subscription exists yet — create free trial ONCE
+      try {
+        await api.post("/subscription/start", { plan: "FREE_TRIAL" });
+        console.log("[CONSUMER SUBSCRIPTION] Free trial started");
+        dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
+      } catch (startErr) {
+        console.log("[CONSUMER SUBSCRIPTION] Start failed:", startErr.response?.status);
+        dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
+      }
+    } else {
+      // Any other error — don't expire trial
       dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
     }
-  }, []);
+  }
+}, []);
 
   // ── Fetch job history 
   const fetchJobs = useCallback(async () => {
