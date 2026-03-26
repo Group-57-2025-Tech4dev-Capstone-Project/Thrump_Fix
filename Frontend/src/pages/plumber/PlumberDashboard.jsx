@@ -40,7 +40,7 @@ export default function PlumberDashboard() {
   const isTrial = subscription?.plan === "FREE_TRIAL";
 
     // ── Subscription logic - Free trial allows ONLY 1 claim
-  const trialExpired = subscription?.status === "EXPIRED" 
+  const trialExpired = subscription?.active === false
   // || 
   // (subscription?.plan === "FREE_TRIAL" && subscription?.usageCount >= 1);
 
@@ -74,23 +74,6 @@ export default function PlumberDashboard() {
       .catch((err) => console.error("[PLUMBER PROFILE] ❌ Failed:", err.message));
   }, [userId]);
 
-  // ── Fetch available leads
-  // const fetchLeads = useCallback(async () => {
-  //   try {
-  //     const res = await api.get("/jobs/available");
-  //     const jobs = Array.isArray(res.data) ? res.data : [];
-
-  //     setLeads(jobs);
-  //     leadsRef.current = jobs;
-  //     if (jobs.length > 0) {
-  //       console.log(`[LEADS] ✅ ${jobs.length} job(s) available → ${jobs.map(j => `#${j.jobId}`).join(", ")}`);
-  //     } else {
-  //       console.log("[LEADS] ⏳ No jobs in your region yet");
-  //     }
-  //   } catch (err) {
-  //     console.error("[LEADS ERROR] ❌", err.message);
-  //   }
-  // }, []);
 
   const fetchLeads = useCallback(async () => {
   try {

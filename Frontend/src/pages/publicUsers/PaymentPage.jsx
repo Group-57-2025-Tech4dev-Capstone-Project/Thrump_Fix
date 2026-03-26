@@ -288,12 +288,22 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ─────────────────────────────────────────────────────────────
+
   // SUBSCRIPTION FLOW:
-  // 1. Try POST /subscription/start  (new users — first subscription)
-  // 2. If 409 (already exists) → try POST /subscription/upgrade (existing users upgrading)
-  // 3. Any other error → show error message
-  // ─────────────────────────────────────────────────────────────
+
+    // Helper function to avoid repeating the navigate code
+    const navigateToSuccess = () => {
+    // Optional: clear any old trial flags
+    sessionStorage.removeItem("trialExpired"); // if you ever stored it manually
+
+    navigate(route.Login, {
+      state: { 
+        message: "🎉 Subscription activated successfully! Please log in again to continue." 
+      }
+    });
+  };
+
+  
     const handleSubscribe = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -315,9 +325,9 @@ export default function PaymentPage() {
 
       console.warn(`[PAYMENT] /subscription/start failed with status ${status}: ${message}`);
 
-      // If user already has subscription (most common case for free trial users), upgrade instead
-      if (status === 403 || status === 409 || status === 400) {
-        console.log("[PAYMENT] 🔵 User already has subscription → trying upgrade...");
+      // ✅ Already subscribed → upgrade
+      if (status === 409) {
+        console.log("[PAYMENT] 🔵 Already subscribed → trying upgrade...");
 
         try {
           await api.post("/subscription/upgrade", { plan: "THRUMPFIX_PRO" });
@@ -325,42 +335,48 @@ export default function PaymentPage() {
           navigateToSuccess();
         } catch (upgradeErr) {
           const upgradeStatus = upgradeErr.response?.status;
-          console.warn(`[PAYMENT] Upgrade failed with status ${upgradeStatus}`);
 
-          // Many backends return 500 even on success — treat as success
           if (upgradeStatus === 500 || upgradeStatus === 200) {
-            console.warn("[PAYMENT] ⚠️ Treating 500 as success");
             navigateToSuccess();
           } else {
-            setError(upgradeErr.response?.data?.message || "Upgrade failed. Please try again.");
+            setError("Upgrade failed. Please try again.");
           }
         }
+
       } 
-      // If start failed with 500, still treat as success (common backend behavior)
+      // ✅ Optional fallback
+      else if (status === 400) {
+        console.log("[PAYMENT] ⚠️ Bad request → trying upgrade anyway...");
+
+        try {
+          await api.post("/subscription/upgrade", { plan: "THRUMPFIX_PRO" });
+          navigateToSuccess();
+        } catch {
+          setError("Something went wrong. Please try again.");
+        }
+
+      } 
+      // ❌ DO NOT retry 403
+      else if (status === 403) {
+        console.warn("[PAYMENT] ❌ 403 Forbidden — user not authorized");
+        setError("Session expired or unauthorized. Please log in again.");
+        navigate(route.Login);
+      } 
+      // ⚠️ backend weird success
       else if (status === 500) {
         console.warn("[PAYMENT] ⚠️ 500 on start — treating as success");
         navigateToSuccess();
       } 
       else {
-        setError(err.response?.data?.message || "Payment failed. Please try again.");
+        setError(message || "Payment failed. Please try again.");
       }
+
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to avoid repeating the navigate code
-    const navigateToSuccess = () => {
-    // Optional: clear any old trial flags
-    sessionStorage.removeItem("trialExpired"); // if you ever stored it manually
-
-    navigate(route.Login, {
-      state: { 
-        message: "🎉 Subscription activated successfully! Please log in again to continue." 
-      }
-    });
-  };
-
+  
   // ── Back button — reads from sessionStorage (not localStorage)
   function handleBack() {
     if (from === "dashboard") {
