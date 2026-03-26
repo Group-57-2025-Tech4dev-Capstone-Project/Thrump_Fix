@@ -4,7 +4,7 @@ import { Card } from "../card/Card";
 const testimonials = [
   {
     quote:
-      "My kitchen pipe burst at 3am and I was panicking. PlumbConnect connected me with a verified plumber in Ikeja within 15 minutes. Professional service, fair pricing. Highly recommended!",
+      "My kitchen pipe burst at 3am and I was panicking. Thrump Fix connected me with a verified plumber in Ikeja within 15 minutes. Professional service, fair pricing. Highly recommended!",
     name: "Adebayo Oluwaseun",
     role: "Homeowner, Ikeja",
     initials: "AO",
@@ -12,7 +12,7 @@ const testimonials = [
   },
   {
     quote:
-      "As a plumber, PlumbConnect has transformed my business. I get verified leads daily, and the platform handles all the paperwork. I can focus on what I do best - fixing pipes!",
+      "As a plumber, Thrump Fix has transformed my business. I get verified leads daily, and the platform handles all the paperwork. I can focus on what I do best - fixing pipes!",
     name: "Chukwuma Emmanuel",
     role: "Verified Plumber, Surulere",
     initials: "CE",
