@@ -39,7 +39,10 @@ export default function PlumberDashboard() {
   const isActive = subscription?.status === "ACTIVE";
   const isTrial = subscription?.plan === "FREE_TRIAL";
 
-  const trialExpired = subscription?.status === "EXPIRED";
+    // ── Subscription logic - Free trial allows ONLY 1 claim
+  const trialExpired = subscription?.status === "EXPIRED" || 
+  (subscription?.plan === "FREE_TRIAL" && subscription?.usageCount >= 1);
+
   const blocked = trialExpired;
 
   // ── Role guard
@@ -76,36 +79,6 @@ export default function PlumberDashboard() {
       const res = await api.get("/jobs/available");
       const jobs = Array.isArray(res.data) ? res.data : [];
 
-      // // temporary fix for backend returning {} instead of [] when no jobs available in region
-
-      // let jobs = Array.isArray(res.data) ? res.data : [];
-
-      // //  TEMP FIX: force fake jobs if empty
-      // if (jobs.length === 0) {
-      //   jobs = [
-      //     {
-      //       jobId: 989,
-      //       customerFullName: "Test Customer",
-      //       address: "Test Address",
-      //       issueDetails: "Blocked test job",
-      //     },
-
-      //      {
-      //       jobId: 990,
-      //       customerFullName: "Test Customer",
-      //       address: "Test Address",
-      //       issueDetails: "Blocked test job",
-      //     },
-      //      {
-      //       jobId: 991,
-      //       customerFullName: "Test Customer",
-      //       address: "Test Address",
-      //       issueDetails: "Blocked test job",
-      //     }
-      //   ];
-      // }
-
-
       setLeads(jobs);
       leadsRef.current = jobs;
       if (jobs.length > 0) {
@@ -134,12 +107,19 @@ export default function PlumberDashboard() {
   }, []);
 
   // ── Fetch subscription
-  const fetchSubscription = useCallback(async () => {
+    const fetchSubscription = useCallback(async () => {
     try {
       const res = await api.get("/subscription/me");
       setSubscription(res.data);
-    } catch {
-      setSubscription({ plan: "FREE_TRIAL", usageCount: 0, active: true });
+      console.log("[PLUMBER SUBSCRIPTION]", res.data);
+    } catch (err) {
+      console.log("[PLUMBER SUBSCRIPTION ERROR]", err.response?.status);
+      // Default to free trial if nothing exists yet
+      setSubscription({ 
+        plan: "FREE_TRIAL", 
+        usageCount: 0, 
+        status: "ACTIVE" 
+      });
     }
   }, []);
 
@@ -148,6 +128,10 @@ export default function PlumberDashboard() {
     if (!user) return;
 
     console.log(`[PLUMBER DASHBOARD] ✅ Loaded — userId: ${userId}, name: ${user.fullName}`);
+
+    // Just in case the backend didn't start the trial on registration, we attempt to start it here. If it fails (e.g. because it's already active), we ignore the error and proceed.
+
+    api.post("/subscription/start", { plan: "FREE_TRIAL" }).catch(() => {});
 
     Promise.all([fetchLeads(), fetchHistory(), fetchSubscription()])
       .then(() => {
@@ -240,13 +224,11 @@ export default function PlumberDashboard() {
       )}
 
       <DashboardLayout
-        // trialExpired={trialExpired}
-        // user={user}
-        // onUpgrade={() => navigate(route.Payment, { state: { from: "dashboard" } })}
+        
         trialExpired={trialExpired}
         onUpgrade={() => navigate(route.Payment, { state: { from: "dashboard" } })}
-        statusLabel={isActive ? "Active Plan" : "Free Trial"}
-        statusColor={isActive ? "green" : "gray"}
+        statusLabel={subscription?.status === "ACTIVE" ? "Active Plan" : "Free Trial"}
+        statusColor={subscription?.status === "ACTIVE" ? "green" : "gray"}
       >
         {/* Header */}
         <div className="mb-6 mt-6">

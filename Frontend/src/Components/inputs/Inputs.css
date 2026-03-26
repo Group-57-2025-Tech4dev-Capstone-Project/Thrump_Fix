@@ -93,3 +93,21 @@
   display: flex;
   align-items: center;
 }
+
+.input-field select option {
+  color: #1e3a5f;           /* All options black */
+  background: white;
+}
+
+/* Placeholder style when no value is selected */
+.input-field select:invalid,
+.input-field select option[value=""] {
+  color: #a0aec0;           /* Ash color for placeholder */
+}
+
+/* When focused or has value */
+.input-field select:focus {
+  border-color: #4f7dbd;
+  background: #ffffff;
+  color: #010102;
+}
