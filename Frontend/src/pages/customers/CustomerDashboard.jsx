@@ -7,6 +7,7 @@ import route from "../../utils/routes"
 import Address from "../../assets/Address.svg?react"
 import Phone from "../../assets/Phone.svg?react"
 import Verified from "../../assets/Verified.svg?react"
+import OperationalLogo from "../../assets/OperationalLogo.svg?react"
 
 function getStatusStyle(status) {
   const s = status?.toLowerCase();
@@ -97,8 +98,7 @@ export default function ConsumerDashboard() {
   } catch (err) {
     const status = err.response?.status;
     console.log("[CONSUMER SUBSCRIPTION ERROR]", status);
-    if (status === 404) {
-      // No subscription exists yet — create free trial ONCE
+    if (status === 404 || status === 403) {
       try {
         await api.post("/subscription/start", { plan: "FREE_TRIAL" });
         console.log("[CONSUMER SUBSCRIPTION] Free trial started");
@@ -107,7 +107,7 @@ export default function ConsumerDashboard() {
         console.log("[CONSUMER SUBSCRIPTION] Start failed:", startErr.response?.status);
         dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
       }
-    } else {
+    }else {
       // Any other error — don't expire trial
       dispatch({ type: "SET_TRIAL_EXPIRED", payload: false });
     }
@@ -218,6 +218,7 @@ export default function ConsumerDashboard() {
 
         {!loading && jobs.length === 0 && (
           <div className="bg-white rounded-3xl shadow-sm p-10 flex flex-col items-center justify-center text-center min-h-[320px]">
+            <OperationalLogo  className="w-16 h-16 mb-4"/>
             <h2 className="text-lg font-black uppercase tracking-widest text-gray-900 mb-2">
               All Systems Operational
             </h2>

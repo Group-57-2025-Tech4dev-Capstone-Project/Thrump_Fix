@@ -77,7 +77,7 @@ export default function StepNoMatch({ selectedLGA, onTryAgain, onClose }) {
         Try Again
       </Button>
 
-      <Button size="lg" variant="outline" className="w-full" onClick={onClose}>
+      <Button w-full bg-blue-600 text-white onClick={onClose}>
         Back to Dashboard
       </Button>
     </div>

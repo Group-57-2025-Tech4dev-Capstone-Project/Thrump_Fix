@@ -82,9 +82,7 @@ export default function DashboardLayout({
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await api.post(`/users/profile-photo/${userId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.post(`/users/users/${userId}/profile-photo`, formData);
 
       console.log("FULL RESPONSE:", res);
       console.log("DATA:", res.data);
