@@ -40,8 +40,9 @@ export default function PlumberDashboard() {
   const isTrial = subscription?.plan === "FREE_TRIAL";
 
     // ── Subscription logic - Free trial allows ONLY 1 claim
-  const trialExpired = subscription?.status === "EXPIRED" || 
-  (subscription?.plan === "FREE_TRIAL" && subscription?.usageCount >= 1);
+  const trialExpired = subscription?.status === "EXPIRED" 
+  // || 
+  // (subscription?.plan === "FREE_TRIAL" && subscription?.usageCount >= 1);
 
   const blocked = trialExpired;
 
@@ -74,22 +75,42 @@ export default function PlumberDashboard() {
   }, [userId]);
 
   // ── Fetch available leads
-  const fetchLeads = useCallback(async () => {
-    try {
-      const res = await api.get("/jobs/available");
-      const jobs = Array.isArray(res.data) ? res.data : [];
+  // const fetchLeads = useCallback(async () => {
+  //   try {
+  //     const res = await api.get("/jobs/available");
+  //     const jobs = Array.isArray(res.data) ? res.data : [];
 
-      setLeads(jobs);
-      leadsRef.current = jobs;
-      if (jobs.length > 0) {
-        console.log(`[LEADS] ✅ ${jobs.length} job(s) available → ${jobs.map(j => `#${j.jobId}`).join(", ")}`);
-      } else {
-        console.log("[LEADS] ⏳ No jobs in your region yet");
-      }
-    } catch (err) {
-      console.error("[LEADS ERROR] ❌", err.message);
+  //     setLeads(jobs);
+  //     leadsRef.current = jobs;
+  //     if (jobs.length > 0) {
+  //       console.log(`[LEADS] ✅ ${jobs.length} job(s) available → ${jobs.map(j => `#${j.jobId}`).join(", ")}`);
+  //     } else {
+  //       console.log("[LEADS] ⏳ No jobs in your region yet");
+  //     }
+  //   } catch (err) {
+  //     console.error("[LEADS ERROR] ❌", err.message);
+  //   }
+  // }, []);
+
+  const fetchLeads = useCallback(async () => {
+  try {
+    console.log("[LEADS] 🔵 Calling /jobs/available ...");
+    const res = await api.get("/jobs/available");
+    
+    const jobs = Array.isArray(res.data) ? res.data : [];
+    
+    console.log(`[LEADS] ✅ Received ${jobs.length} jobs from backend`);
+    if (jobs.length > 0) {
+      console.log("First job sample:", jobs[0]);
     }
-  }, []);
+
+    setLeads(jobs);
+    leadsRef.current = jobs;
+
+  } catch (err) {
+    console.error("[LEADS ERROR] ❌ Failed to fetch available jobs:", err.response?.status, err.response?.data);
+  }
+}, []);
 
   // ── Fetch assigned jobs
   const fetchHistory = useCallback(async () => {
