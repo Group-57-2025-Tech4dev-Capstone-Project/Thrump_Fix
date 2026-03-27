@@ -54,6 +54,8 @@ export default function AvailableJobCard({ job, onRequestClaim, blocked }) {
           onClick={() => {
             if (!claimed && !blocked) onRequestClaim(job.jobId);
           }}
+
+          
           disabled={claimed || blocked}
           className={`px-6 py-2.5 rounded-xl text-sm font-black transition ${
             claimed || blocked

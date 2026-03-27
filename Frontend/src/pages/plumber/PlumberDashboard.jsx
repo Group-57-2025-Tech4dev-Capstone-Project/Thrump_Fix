@@ -110,6 +110,12 @@ export default function PlumberDashboard() {
     }
   }, []);
 
+  // Determine if the user is new — no assigned jobs yet
+    const isNewUser = jobHistory.length === 0;
+
+    // Get first name for greeting
+    const firstName = user?.fullName?.split(" ")[0] || "Plumber";
+
 
 //   const fetchSubscription = useCallback(async () => {
 //   try {
@@ -132,13 +138,13 @@ export default function PlumberDashboard() {
   } catch (err) {
     const status = err.response?.status;
     console.log("[PLUMBER SUBSCRIPTION ERROR]", status);
-    if (status === 404) {
+    if (status === 404 || status === 403) {
       // No subscription — start free trial once
       try {
         await api.post("/subscription/start", { plan: "FREE_TRIAL" });
         setSubscription({ plan: "FREE_TRIAL", usageCount: 0, status: "ACTIVE" });
       } catch {
-        setSubscription(prev => prev ?? { plan: "FREE_TRIAL", usageCount: 0, status: "ACTIVE" });
+        setSubscription(prev => prev ?? { plan: "FREE_TRIAL", usageCount: 0, active: true });
       }
     } else {
       // Keep whatever we had — don't reset
@@ -224,11 +230,15 @@ export default function PlumberDashboard() {
     setClaimingId(null);
   }, [pendingJob]);
 
+  
+
   // ── Manual refresh
   const handleRefresh = useCallback(async () => {
     console.log("[REFRESH] Manual refresh triggered");
     await fetchLeads();
   }, [fetchLeads]);
+
+  
 
   // Region label
   const regionLabel = plumber
@@ -257,9 +267,13 @@ export default function PlumberDashboard() {
       >
         {/* Header */}
         <div className="mb-6 mt-6">
-          <h1 className="text-2xl font-extrabold text-gray-900">
+          <p className="text-xl text-gray-700">
+            {isNewUser ? "Welcome," : "Welcome back,"}{" "}
+            <span className="font-black text-gray-900">{firstName}</span>
+          </p>
+          {/* <h1 className="text-2xl font-extrabold text-gray-900">
             Available Jobs
-          </h1>
+          </h1> */}
           <p className="text-sm text-gray-500 mt-1">
             Showing jobs for{" "}
             <span className="text-sm font-bold text-gray-800 mt-1">
