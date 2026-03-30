@@ -15,7 +15,13 @@ import java.time.LocalDateTime;
 public class AssignedJobResponse {
     private Long jobId;
     private String issueDetails;
-    private Long subRegionId;
+//    private Long subRegionId;
+ private String address; //houseNumber, streetName
+    private String localGovernmentArea;
+    private String stateName;
+    private String customerName;
+    private String customerPhoneNumber;
     private JobStatus status;
     private LocalDateTime acceptedAt;
 }
+//i have added private String lgaName,  private String stateName, streetName,private String customerName, private String customerPhoneNumber, private String address;

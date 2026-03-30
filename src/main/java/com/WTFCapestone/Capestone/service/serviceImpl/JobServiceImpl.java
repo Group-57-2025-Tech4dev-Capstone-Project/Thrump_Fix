@@ -28,6 +28,7 @@ public class JobServiceImpl implements JobService {
     private final SubRegionRepository subRegionRepository;
     private final JobMatchingService jobMatchingService;
     private final PlumberProfileRepository plumberProfileRepository;
+    private final JobBroadcastRepository jobBroadcastRepository;
     private final SubscriptionService subscriptionService; // ⭐ ADDED
 
     @Override
@@ -47,6 +48,7 @@ public class JobServiceImpl implements JobService {
         // ⭐⭐⭐⭐⭐ SUBSCRIPTION VALIDATION BEFORE JOB CREATION ⭐⭐⭐⭐⭐
         subscriptionService.validateCustomerCanPostJob(user); // ⭐ ADDED
 
+
         State state = stateRepository.findById(request.getStateId())
                 .orElseThrow(() -> new ResourceNotFoundException("State not found"));
 
@@ -64,13 +66,11 @@ public class JobServiceImpl implements JobService {
                 .address(request.getAddress())
                 .issueDetails(request.getIssueDetails())
                 .status(JobStatus.LOGGED)
-                .expiresAt(LocalDateTime.now().plusSeconds(70))
+                .expiresAt(LocalDateTime.now().plusSeconds(30))
                 .build();
 
         job = jobRepository.saveAndFlush(job);
 
-        // ⭐⭐⭐⭐⭐ RECORD TRIAL USAGE AFTER SUCCESS ⭐⭐⭐⭐⭐
-        subscriptionService.recordCustomerUsage(user); // ⭐ ADDED
 
         jobMatchingService.matchJobAsync(job.getId());
 
@@ -95,10 +95,11 @@ public class JobServiceImpl implements JobService {
                 plumber.getAvailabilityStatus() != AvailabilityStatus.AVAILABLE)
             throw new AuthorizationException("Must be online & available");
 
-        List<Job> jobs = jobRepository.findAvailableMatchedJobs(
-                user.getSubRegion().getId(),
-                LocalDateTime.now()
-        );
+
+
+        // ⭐⭐⭐⭐⭐ FETCH JOBS THAT WERE BROADCASTED TO THIS PLUMBER ⭐⭐⭐⭐⭐
+        List<Job> jobs = jobBroadcastRepository
+                .findJobsBroadcastedToPlumber(plumber.getId(), LocalDateTime.now());
 
         return jobs.stream()
                 .map(j -> new AvailableJobResponse(
@@ -144,6 +145,7 @@ public class JobServiceImpl implements JobService {
 
         // ⭐⭐⭐⭐⭐ SUBSCRIPTION VALIDATION BEFORE ACCEPT ⭐⭐⭐⭐⭐
         subscriptionService.validatePlumberCanAcceptJob(plumberUser); // ⭐ ADDED
+        subscriptionService.recordCustomerUsage(job.getCustomer());
 
         job.setPlumber(plumber);
         job.setStatus(JobStatus.ACCEPTED);
@@ -191,6 +193,27 @@ public class JobServiceImpl implements JobService {
         return mapToResponse(job);
     }
 
+//    public List<JobHistoryResponse> jobHistoryRecord(Long ignored) {
+//
+//        Long userId = SecurityUtils.getCurrentUserId();
+//
+//        List<Job> jobs = jobRepository.findByCustomerId(userId);
+//
+//        return jobs.stream()
+//                .map(j -> new JobHistoryResponse(
+//                        j.getId(),
+//                        j.getIssueDetails(),
+////                        j.getSubRegion().getId(),
+//                        j.getState().getName(),
+//                        j.getLocalGovernanceArea().getName(),
+//                        j.getStatus(),
+//                        j.getCreatedAt(),
+//                        resolveFinalTime(j)
+//                ))
+//                .toList();
+//    }
+
+    @Override
     public List<JobHistoryResponse> jobHistoryRecord(Long ignored) {
 
         Long userId = SecurityUtils.getCurrentUserId();
@@ -198,17 +221,30 @@ public class JobServiceImpl implements JobService {
         List<Job> jobs = jobRepository.findByCustomerId(userId);
 
         return jobs.stream()
-                .map(j -> new JobHistoryResponse(
-                        j.getId(),
-                        j.getIssueDetails(),
-                        j.getSubRegion().getId(),
-                        j.getStatus(),
-                        j.getCreatedAt(),
-                        resolveFinalTime(j)
-                ))
+                .map(j -> {
+
+                    String plumberName = null;
+                    String plumberPhone = null;
+
+                    if (j.getPlumber() != null && j.getPlumber().getUser() != null) {
+                        plumberName = j.getPlumber().getUser().getFullName();
+                        plumberPhone = j.getPlumber().getUser().getPhoneNumber();
+                    }
+
+                    return new JobHistoryResponse(
+                            j.getId(),
+                            j.getIssueDetails(),
+                            j.getState().getName(),
+                            j.getLocalGovernanceArea().getName(),
+                            j.getStatus(),
+                            j.getCreatedAt(),
+                            resolveFinalTime(j),
+                            plumberName,      // ⭐ NEW
+                            plumberPhone      // ⭐ NEW
+                    );
+                })
                 .toList();
     }
-
     private CreateJobResponse mapToResponse(Job job) {
         return new CreateJobResponse(
                 job.getId(),

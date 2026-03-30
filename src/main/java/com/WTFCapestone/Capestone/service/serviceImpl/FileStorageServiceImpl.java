@@ -15,10 +15,6 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Autowired
     private StoredFileRepository repository;
 
-//    public FileStorageServiceImpl(StoredFileRepository repository) {
-//        this.repository = repository;
-//    }
-
     @Override
     public StoredFile store(MultipartFile file) {
 

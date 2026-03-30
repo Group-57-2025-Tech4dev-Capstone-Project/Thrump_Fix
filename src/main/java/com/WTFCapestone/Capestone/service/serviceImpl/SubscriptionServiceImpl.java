@@ -89,17 +89,38 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     // =============================
     // VALIDATION BEFORE ACTIONS
     // =============================
+    // =============================
+    // VALIDATION BEFORE ACTIONS
+    // =============================
     @Override
     public void validateCustomerCanPostJob(User user) {
+
         Subscription sub = getSubscription(user);
         validateActive(sub);
 
-        if (sub.isTrial() && sub.trialLimitReached()) {
+        // ⭐⭐⭐ IMPORTANT CHANGE
+        // For customers trial ends ONLY when usageCount >=1
+        // but usageCount is incremented on JOB ACCEPT not JOB POST
+
+        if (sub.isTrial() && sub.getUsageCount() >= 1) {
             throw new AuthorizationException(
                     "Trial finished. Upgrade to ThrumpFix Pro."
             );
         }
     }
+
+
+//    @Override
+//    public void validateCustomerCanPostJob(User user) {
+//        Subscription sub = getSubscription(user);
+//        validateActive(sub);
+//
+//        if (sub.isTrial() && sub.trialLimitReached()) {
+//            throw new AuthorizationException(
+//                    "Trial finished. Upgrade to ThrumpFix Pro."
+//            );
+//        }
+//    }
 
     @Override
     public void validatePlumberCanAcceptJob(User user) {
@@ -134,11 +155,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     // =============================
     // USAGE TRACKING
     // =============================
+    // ⭐⭐⭐ CUSTOMER → usage when THEIR JOB gets ACCEPTED
     @Override
     public void recordCustomerUsage(User user) {
         recordUsage(user);
     }
 
+    // ⭐⭐⭐ PLUMBER → usage when ACCEPTS job
     @Override
     public void recordPlumberUsage(User user) {
         recordUsage(user);
@@ -152,7 +175,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         sub.setUsageCount(sub.getUsageCount() + 1);
 
-        if (sub.isTrial() && sub.trialLimitReached()) {
+//        if (sub.isTrial() && sub.trialLimitReached()) {
+//            sub.setActive(false);
+//            log.info("Trial ended for user {}", user.getId());
+//        }
+        if (sub.isTrial() && sub.getUsageCount() >= 1) {
             sub.setActive(false);
             log.info("Trial ended for user {}", user.getId());
         }
@@ -171,8 +198,3 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 }
 
-//    you say "👉 Do you want credit-based subscription
-//        or
-//        👉 time-based unlimited subscription"
-//
-//        if we use credit-based subscription will it be a Paas(payment as a service) then if it is time-based is it you pay first for s defined period of time?

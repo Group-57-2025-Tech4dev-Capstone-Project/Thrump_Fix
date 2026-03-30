@@ -45,7 +45,7 @@ public class UserController {
     }
 
     // ✅ Upload profile photo
-    @PostMapping("/users/{id}/profile-photo")
+    @PostMapping("/{id}/profile-photo") ///me/profile-photo
     public ResponseEntity<?> uploadProfilePhoto(
             @PathVariable Long id,
             @RequestParam MultipartFile file) {
@@ -79,5 +79,15 @@ public class UserController {
     public ResponseEntity<String> deleteProfile() {
         userService.deleteUserProfile();
         return ResponseEntity.ok("User profile deleted successfully");
+    }
+
+    @GetMapping("/files/{id}")
+    public ResponseEntity<byte[]> getFile(@PathVariable Long id){
+
+        StoredFile file = userService.getFile(id);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", file.getFileType())
+                .body(file.getData());
     }
 }

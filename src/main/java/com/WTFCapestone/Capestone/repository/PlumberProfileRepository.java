@@ -7,6 +7,7 @@ import com.WTFCapestone.Capestone.entity.VerificationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,4 +44,24 @@ public interface PlumberProfileRepository extends JpaRepository<PlumberProfile, 
 
     // ✅ Find by availability
     List<PlumberProfile> findByAvailabilityStatus(AvailabilityStatus status);
+
+    @Query("""
+SELECT p FROM PlumberProfile p
+JOIN p.user u
+WHERE p.id IN :ids
+AND u.onlineStatus = 'ONLINE'
+AND p.availabilityStatus = 'AVAILABLE'
+AND p.user.verificationStatus = 'VERIFIED'
+""")
+    List<PlumberProfile> findOnlineAvailablePlumbersByIds(List<Long> ids);
+
+    @Query("""
+SELECT p FROM PlumberProfile p
+WHERE p.user.subRegion.id = :subRegionId
+AND p.availabilityStatus = 'AVAILABLE'
+AND p.user.onlineStatus = 'ONLINE'
+""")
+    List<PlumberProfile> findFallbackPlumbersBySubRegion(
+            Long subRegionId
+    );
 }

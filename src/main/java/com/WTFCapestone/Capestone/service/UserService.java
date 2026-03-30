@@ -8,6 +8,7 @@ import com.WTFCapestone.Capestone.dto.request.UserUpdateRequest;
 import com.WTFCapestone.Capestone.dto.response.AuthResponse;
 import com.WTFCapestone.Capestone.dto.response.UserResponse;
 import com.WTFCapestone.Capestone.entity.OnlineStatus;
+import com.WTFCapestone.Capestone.entity.StoredFile;
 import com.WTFCapestone.Capestone.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,11 +22,14 @@ public interface UserService {
 
     UserResponse updateProfile(UserUpdateRequest request);
 
-    String uploadProfilePhoto(MultipartFile file);
+//    String uploadProfilePhoto(MultipartFile file);
+    UserResponse uploadProfilePhoto(MultipartFile file);
 
     void updateOnlineStatus(OnlineStatus status);
 
     UserResponse getUserById(Long id); // admin only
 
     void deleteUserProfile();
+
+    StoredFile getFile(Long id);
 }

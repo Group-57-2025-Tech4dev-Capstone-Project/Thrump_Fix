@@ -7,5 +7,5 @@ package com.WTFCapestone.Capestone.entity;
 public enum AvailabilityStatus {
     AVAILABLE,
     BUSY,
-    OFFLINE
+    UNAVAILABLE
 }

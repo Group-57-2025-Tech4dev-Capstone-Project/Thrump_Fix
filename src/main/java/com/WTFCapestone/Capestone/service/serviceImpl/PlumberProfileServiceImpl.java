@@ -96,7 +96,7 @@ public class PlumberProfileServiceImpl implements PlumberProfileService {
 
         PlumberProfile profile = new PlumberProfile();
         profile.setUser(user);
-        profile.setAvailabilityStatus(AvailabilityStatus.AVAILABLE);
+        profile.setAvailabilityStatus(AvailabilityStatus.UNAVAILABLE); // just changed from AVAILABLE to UNAVAILABLE
 
         plumberProfileRepository.save(profile);
 
@@ -257,13 +257,39 @@ public class PlumberProfileServiceImpl implements PlumberProfileService {
 
         // Step 5: Map jobs to AssignedJobResponse DTO
         return jobs.stream()
-                .map(job -> new AssignedJobResponse(
-                        job.getId(),
-                        job.getIssueDetails(),
-                        job.getSubRegion().getId(),
-                        job.getStatus(),
-                        job.getAcceptedAt()
-                ))
+                .map(job -> {
+
+                    String customerName = null;
+                    String customerPhone = null;
+
+                    if (job.getCustomer() != null) {
+                        customerName = job.getCustomer().getFullName();
+                        customerPhone = job.getCustomer().getPhoneNumber();
+                    }
+
+                    String stateName = null;
+                    String lgaName = null;
+
+                    if (job.getState() != null) {
+                        stateName = job.getState().getName();
+                    }
+
+                    if (job.getLocalGovernanceArea() != null) {
+                        lgaName = job.getLocalGovernanceArea().getName();
+                    }
+
+                    return new AssignedJobResponse(
+                            job.getId(),
+                            job.getIssueDetails(),
+                            job.getAddress(),
+                            lgaName,
+                            stateName,
+                            customerName,
+                            customerPhone,
+                            job.getStatus(),
+                            job.getAcceptedAt()
+                    );
+                })
                 .toList();
     }
 

@@ -11,8 +11,12 @@ import java.time.LocalDateTime;
 public class JobHistoryResponse {
     private Long jobId;
     private String issueDetails;
-    private Long subRegionId;
+//    private Long subRegionId;
+    private String stateName;
+    private String localGovernmentName;
     private JobStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime finalStatusTime;
+    private String plumberFullName;
+    private String plumberPhoneNumber;
 }

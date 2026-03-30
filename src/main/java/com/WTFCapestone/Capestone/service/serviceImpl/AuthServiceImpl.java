@@ -1,5 +1,6 @@
 package com.WTFCapestone.Capestone.service.serviceImpl;
 
+import com.WTFCapestone.Capestone.dto.response.PlumberProfileResponse;
 import com.WTFCapestone.Capestone.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired private UserService userService;
     @Autowired private PlumberProfileService plumberProfileService;
+    @Autowired private PlumberProfileRepository plumberProfileRepository;
 
     @Autowired
     private SubscriptionService subscriptionService;
@@ -251,10 +253,27 @@ public class AuthServiceImpl implements AuthService {
         user.setOnlineStatus(OnlineStatus.ONLINE);
         userRepository.save(user);
 
+        user.setVerificationStatus(VerificationStatus.VERIFIED);
+        userRepository.save(user);
+
         String token = jwtUtil.generateToken(user);
 
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(user.getId());
+
+        // ⭐ UPDATE PLUMBER AVAILABILITY ON LOGIN
+        if (user.getRole() == Role.PLUMBER) {
+
+            PlumberProfile profile = plumberProfileRepository
+                    .findByUserId(user.getId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Plumber profile not found")
+                    );
+
+            profile.setAvailabilityStatus(AvailabilityStatus.AVAILABLE);
+
+            plumberProfileRepository.save(profile);   // ✅ THIS is what persists
+        }
 
         return new AuthResponse(
                 user.getId(),
@@ -326,6 +345,20 @@ public class AuthServiceImpl implements AuthService {
         // SET USER OFFLINE
         user.setOnlineStatus(OnlineStatus.OFFLINE);
         userRepository.save(user);
+
+        // ⭐ set AVAILABILITY ON LOGout
+        if (user.getRole() == Role.PLUMBER) {
+
+            PlumberProfile profile = plumberProfileRepository
+                    .findByUserId(user.getId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Plumber profile not found")
+                    );
+
+            profile.setAvailabilityStatus(AvailabilityStatus.UNAVAILABLE);
+
+            plumberProfileRepository.save(profile);   // ✅ THIS is what persists
+        }
 
         // optional blacklist
         blacklistService.blacklistToken(token);

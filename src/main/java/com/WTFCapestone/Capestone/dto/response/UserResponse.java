@@ -32,6 +32,7 @@ public class UserResponse {
     // 🔴 CHANGED: return safe metadata instead of entity
     private Long profilePhotoFileId;
     private String profilePhotoFileName;
+    private String profilePhotoUrl;
 
     private OnlineStatus onlineStatus;
     private LocalDateTime createdAt;

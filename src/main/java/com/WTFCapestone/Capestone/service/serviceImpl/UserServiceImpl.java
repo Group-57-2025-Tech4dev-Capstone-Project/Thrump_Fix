@@ -85,24 +85,68 @@ public class UserServiceImpl implements UserService{
         return map(user);
     }
 
+//    @Override
+//    public String uploadProfilePhoto(MultipartFile file) {
+//        // ✅ 1. GET CURRENT USER
+//        User user = getCurrentUser();
+//
+//        // ✅ 2. VALIDATE FILE SIZE AND TYPE
+//        if (file == null || file.isEmpty()) {
+//            throw new BadRequestException("Profile photo file is required");
+//        }
+//        if (file.getSize() > 5 * 1024 * 1024) {
+//            throw new BadRequestException("File size must be <= 5MB");
+//        }
+//        if (!List.of("image/jpeg", "image/png", "image/jpg").contains(file.getContentType())) {
+//            throw new BadRequestException("Invalid file type. Only JPG, JPEG, PNG allowed");
+//        }
+//
+//        try {
+//            // ✅ 3. STORE FILE IN DATABASE
+//            StoredFile storedFile = StoredFile.builder()
+//                    .fileName(file.getOriginalFilename())
+//                    .fileType(file.getContentType())
+//                    .data(file.getBytes())
+//                    .build();
+//
+//            storedFile = storedFileRepository.save(storedFile);
+//
+//            // ✅ 4. ASSIGN TO USER
+//            user.setProfilePhotoFile(storedFile);
+//            userRepository.save(user);
+//
+//            // ✅ 5. RETURN FILE NAME
+//            return storedFile.getFileName();
+//
+//        } catch (IOException e) {
+//            // 🔴 CHANGED: convert technical error into business error
+//            throw new BadRequestException("Failed to process uploaded file");
+//        }
+//    }
+
+    // =========================================================
+    // ⭐ CHANGED: Upload profile photo now returns UserResponse
+    // =========================================================
     @Override
-    public String uploadProfilePhoto(MultipartFile file) {
-        // ✅ 1. GET CURRENT USER
+    public UserResponse uploadProfilePhoto(MultipartFile file) {
+
         User user = getCurrentUser();
 
-        // ✅ 2. VALIDATE FILE SIZE AND TYPE
         if (file == null || file.isEmpty()) {
             throw new BadRequestException("Profile photo file is required");
         }
+
         if (file.getSize() > 5 * 1024 * 1024) {
             throw new BadRequestException("File size must be <= 5MB");
         }
-        if (!List.of("image/jpeg", "image/png", "image/jpg").contains(file.getContentType())) {
-            throw new BadRequestException("Invalid file type. Only JPG, JPEG, PNG allowed");
+
+        if (!List.of("image/jpeg", "image/png", "image/jpg")
+                .contains(file.getContentType())) {
+            throw new BadRequestException("Invalid file type");
         }
 
         try {
-            // ✅ 3. STORE FILE IN DATABASE
+
             StoredFile storedFile = StoredFile.builder()
                     .fileName(file.getOriginalFilename())
                     .fileType(file.getContentType())
@@ -111,17 +155,26 @@ public class UserServiceImpl implements UserService{
 
             storedFile = storedFileRepository.save(storedFile);
 
-            // ✅ 4. ASSIGN TO USER
             user.setProfilePhotoFile(storedFile);
+
             userRepository.save(user);
 
-            // ✅ 5. RETURN FILE NAME
-            return storedFile.getFileName();
+            // ⭐ RETURN UPDATED USER PROFILE
+            return map(user);
 
         } catch (IOException e) {
-            // 🔴 CHANGED: convert technical error into business error
             throw new BadRequestException("Failed to process uploaded file");
         }
+    }
+
+    // =========================================================
+    // ⭐ NEW: Get File Bytes via Service (Proper MVC)
+    // =========================================================
+    @Override
+    public StoredFile getFile(Long id) {
+
+        return storedFileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found"));
     }
 
     @Override
@@ -148,6 +201,8 @@ public class UserServiceImpl implements UserService{
         User user = getCurrentUser();
         userRepository.delete(user);
     }
+
+//    public
 
     // =========================================================
     // 🔐 EMAIL MASKING UTILITY
@@ -200,6 +255,10 @@ public class UserServiceImpl implements UserService{
         if (user.getProfilePhotoFile() != null) {
             response.setProfilePhotoFileId(user.getProfilePhotoFile().getId());
             response.setProfilePhotoFileName(user.getProfilePhotoFile().getFileName());
+//            // ⭐ NEW → send usable URL
+            response.setProfilePhotoUrl(
+                    "/api/files/" + user.getProfilePhotoFile().getId()
+            );
         }
 
         response.setOnlineStatus(user.getOnlineStatus());
@@ -211,37 +270,4 @@ public class UserServiceImpl implements UserService{
 
 //    log.info("JWT subject: {}", jwtUtil.extractUsername("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXNoaXJpY0BleGFtcGxlLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlkIjo5LCJpc3MiOiJDYXBlc3RvbmVBdXRoU2VydmljZSIsImlhdCI6MTc3MjgyMTMzNiwiZXhwIjoxNzcyODI0OTM2fQ.olu6EkeRQRbUpeHwBWEHBmzzUv4JlA1F9qUWW2yLoPBVUVQLFWUPBE8gDT1SmvAGdLw253stctGqqCKJO4SRIQ"));
 
-
-//    // ✅ CHANGE: Rewrote mapper to use setters instead of constructor
-//    // ✅ CHANGE: Rewrote mapper to use setters instead of constructor
-//    UserResponse map(User user) {
-//
-//        UserResponse response = new UserResponse();
-//
-//        response.setId(user.getId());
-//        response.setFullName(user.getFullName());
-//        response.setPhoneNumber(user.getPhoneNumber());
-//        response.setEmail(user.getEmail());
-//        response.setRole(user.getRole());
-//
-//        // location mapping
-//        response.setState(user.getState().getName());
-//        response.setLocalGovernanceArea(user.getLocalGovernanceArea().getName());
-//        response.setSubRegion(user.getSubRegion().getName());
-//
-//        // verification status
-//        response.setVerificationStatus(user.getVerificationStatus().name());
-//
-//        // 🔴 CHANGED: safe mapping for stored file
-//        if (user.getProfilePhotoFile() != null) {
-//            response.setProfilePhotoFileId(user.getProfilePhotoFile().getId());
-//            response.setProfilePhotoFileName(user.getProfilePhotoFile().getFileName());
-//        }
-//
-//        response.setOnlineStatus(user.getOnlineStatus());
-//        response.setCreatedAt(user.getCreatedAt());
-//        response.setEnabled(user.getEnabled());
-//
-//        return response;
-//    }
 }
